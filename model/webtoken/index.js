@@ -26,7 +26,7 @@ const verifyOptions = {
 exports.index = (req, res) => {
     connection.query("SELECT * FROM users", (error, payload) => {
         const token = jwtconfig.sign({ data: payload }, privateKEY, signOptions)
-        error ? response.err("unexpected request", error) : response.ok({ token }, res)
+        error ? response.err(error, res) : response.ok({ token: token }, res)
     });
 };
 
