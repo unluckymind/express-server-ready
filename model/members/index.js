@@ -11,6 +11,13 @@ exports.index = (req, res) => {
   });
 };
 
+exports.id = (req, res) => {
+  const id = req.params.id
+  connection.query("SELECT * FROM members where id = " + id, (error, payload) => {
+    error ? response.err("unexpected request", error) : response.ok({ payload: payload }, res)
+  });
+};
+
 exports.login = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -22,9 +29,9 @@ exports.login = (req, res) => {
             response.ok({ payload }, res)
           })
         } else {
-          response.err({ error: "invalid request" }, res)
+          response.err({ error: "invalid data request" }, res)
         }
-      }) : response.err({ error: "invalid request" }, res)
+      }) : response.err({ error: "invalid data request" }, res)
   })
 };
 
@@ -48,7 +55,7 @@ exports.add = (req, res) => {
     connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
       error ? response.err({ error: error }, res) : (
         response.ok({ payload: { id: payload.insertId } }, res),
-        req.body.code ?
+        req.body.code && req.body.code != "" ?
           connection.query("SELECT id FROM members where id = " + payload.insertId, (error, newPayload) => {
             let member_user_id = newPayload[0].id
             connection.query("SELECT id FROM members WHERE code = " + "'" + req.body.code + "'", (error, lastPayload) => {
