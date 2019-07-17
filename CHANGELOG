@@ -1,0 +1,8 @@
+## LAST FEATURE ##
+
+1. API for user register without code refferal
+2. API for user register with code referall
+3. encrypted API for getting list of user data
+4. decrypting function for API list of user data
+5. API login validation
+6. API get user data by ID
