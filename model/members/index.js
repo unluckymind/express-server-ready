@@ -25,7 +25,7 @@ exports.index = (req, res) => {
       error ? response.err("unexpected request", error) : response.ok({ payload: verify }, res)
       console.log(res)
     } else {
-      error ? response.err("unexpected request", error) : response.ok({ payload: token }, res)
+      error ? response.err("unexpected request", error) : response.ok({ payload: { data: token } }, res)
     }
   });
 };
@@ -51,7 +51,7 @@ exports.login = (req, res) => {
               error ? response.err("unexpected request", error) : response.ok({ payload: verify }, res)
               console.log(res)
             } else {
-              error ? response.err("unexpected request", error) : response.ok({ payload: token }, res)
+              error ? response.err("unexpected request", error) : response.ok({ payload: { data: token } }, res)
             }
           })
         } else {
@@ -82,23 +82,47 @@ exports.register = (req, res) => {
       let users = ''
       let id = ''
       connection.query("SELECT id FROM members WHERE code = " + "'" + req.body.code + "'", (error, userData) => {
-        if (userData[0]) {
-          users = userData[0].id
-          connection.query("INSERT INTO members SET ?", dataMember, (error, memberData) => {
-            id = memberData.insertId
-            connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, result) => {
-              error ? response.err({ error }, res) : response.ok({ payload: { data: { id: result.insertId } } }, res)
-            })
-          })
-        } else {
-          response.err({ error: "code tidak ditemukan" }, res)
-        }
+        connection.query("SELECT COUNT(*) as emailExist FROM members WHERE email = " + "'" + req.body.email + "'", (error, validation) => {
+          if (validation[0].emailExist > 0) {
+            response.err({ error: "email already exist" }, res)
+          } else {
+            if (userData[0]) {
+              users = userData[0].id
+              connection.query("INSERT INTO members SET ?", dataMember, (error, memberData) => {
+                id = memberData.insertId
+                connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
+                  const token = jwtconfig.sign({ data: { id: payload.insertId } }, privateKEY, options)
+                  const verify = jwtconfig.verify(token, publicKEY, options)
+                  if (req.params.hint == "halosis3456") {
+                    error ? response.err({ error }, res) : response.ok({ payload: verify }, res)
+                  } else {
+                    error ? response.err({ error }, res) : response.ok({ payload: { data: token } }, res)
+                  }
+                })
+              })
+            } else {
+              response.err({ error: "code tidak ditemukan" }, res)
+            }
+          }
+        })
       });
 
     } else {
-      connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
-        error ? response.err({ error }, res) : response.ok({ payload: { data: { id: payload.insertId } } }, res)
-      });
+      connection.query("SELECT COUNT(*) as emailExist FROM members WHERE email = " + "'" + req.body.email + "'", (error, validation) => {
+        if (validation[0].emailExist > 0) {
+          response.err({ error: "email already exist" }, res)
+        } else {
+          connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
+            const token = jwtconfig.sign({ data: { id: payload.insertId } }, privateKEY, options)
+            const verify = jwtconfig.verify(token, publicKEY, options)
+            if (req.params.hint == "halosis3456") {
+              error ? response.err({ error }, res) : response.ok({ payload: verify }, res)
+            } else {
+              error ? response.err({ error }, res) : response.ok({ payload: { data: token } }, res)
+            }
+          });
+        }
+      })
     }
   });
 };
