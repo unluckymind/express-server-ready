@@ -33,7 +33,7 @@ exports.index = (req, res) => {
 exports.id = (req, res) => {
   const id = req.params.id
   connection.query("SELECT * FROM members where id = " + id, (error, payload) => {
-    error ? response.err("unexpected request", error) : response.ok({ payload: payload }, res)
+    error ? response.err("unexpected request", error) : response.ok({ payload: { data: payload } }, res)
   });
 };
 
@@ -45,7 +45,7 @@ exports.login = (req, res) => {
       bcrypt.compare(password, payload[0].password, (err, result) => {
         if (result == true) {
           connection.query("SELECT * FROM members WHERE email = ?", email, (error, payload) => {
-            response.ok({ payload }, res)
+            response.ok({ payload: { data: payload } }, res)
           })
         } else {
           response.err({ error: "invalid data request" }, res)
@@ -80,7 +80,7 @@ exports.add = (req, res) => {
           connection.query("INSERT INTO members SET ?", dataMember, (error, memberData) => {
             id = memberData.insertId
             connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, result) => {
-              error ? response.err({ error }, res) : response.ok({ payload: { id: result.insertId } }, res)
+              error ? response.err({ error }, res) : response.ok({ payload: { data: { id: result.insertId } } }, res)
             })
           })
         } else {
@@ -90,30 +90,8 @@ exports.add = (req, res) => {
 
     } else {
       connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
-        error ? response.err({ error }, res) : response.ok({ payload: { id: payload.insertId } }, res)
+        error ? response.err({ error }, res) : response.ok({ payload: { data: { id: payload.insertId } } }, res)
       });
     }
   });
-};
-
-exports.remove = (req, res) => {
-  const id = req.body.id
-  const removeUser = "DELETE FROM members where id = "
-  const removeDetailUser = "DELETE FROM detailusers where id = "
-
-  const initialize = connection.query(removeUser + id)
-  initialize ? connection.query(removeDetailUser + id, (error, payload) => {
-    error ? response.err("unexpected request", error) : response.ok({ payload: { removed: true } }, res)
-  }) : response.err("invalid data format")
-};
-
-exports.update = (req, res) => {
-  const id = req.body.id
-  const user = {
-    email: req.body.email,
-    password: req.body.password
-  }
-  connection.query("UPDATE members SET ? WHERE id=" + id, user, (err, payload) => {
-    err ? response.err({ err }, res) : response.ok({ payload: { updated: payload } }, res)
-  })
 };
