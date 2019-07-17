@@ -2,7 +2,7 @@
 
 exports.ok = function (values, res) {
   var data = {
-    status: 200,
+    statusCode: res.statusCode,
     values: values
   };
   res.json(data);
@@ -11,7 +11,7 @@ exports.ok = function (values, res) {
 
 exports.err = function (values, res) {
   var data = {
-    status: 500,
+    statusCode: res.statusCode,
     values: values
   };
   res.json(data);

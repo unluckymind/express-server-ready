@@ -7,15 +7,7 @@ const fs = require('fs');
 const privateKEY = fs.readFileSync('./private.key', 'utf8');
 const publicKEY = fs.readFileSync('./public.key', 'utf8');
 
-const signOptions = {
-    issuer: "halosis",
-    subject: "dea.aprizal@gmail.com",
-    audience: "http://halosis.co.id",
-    expiresIn: "30d",    // 30 days validity
-    algorithm: "RS256"
-};
-
-const verifyOptions = {
+const options = {
     issuer: "halosis",
     subject: "dea.aprizal@gmail.com",
     audience: "http://halosis.co.id",
@@ -25,7 +17,7 @@ const verifyOptions = {
 
 exports.index = (req, res) => {
     connection.query("SELECT * FROM users", (error, payload) => {
-        const token = jwtconfig.sign({ data: payload }, privateKEY, signOptions)
+        const token = jwtconfig.sign({ data: payload }, privateKEY, options)
         error ? response.err(error, res) : response.ok({ token: token }, res)
     });
 };

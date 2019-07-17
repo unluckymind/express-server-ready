@@ -2,12 +2,31 @@
 
 const response = require("../../config/payload_config");
 const connection = require("../../config/connection");
+const jwtconfig = require("../webtoken/config");
+const fs = require('fs');
+const privateKEY = fs.readFileSync('./private.key', 'utf8');
+const publicKEY = fs.readFileSync('./public.key', 'utf8');
 const randtoken = require('rand-token');
 const bcrypt = require('bcrypt');
 
+const options = {
+  issuer: "halosis",
+  subject: "dea.aprizal@gmail.com",
+  audience: "http://halosis.co.id",
+  expiresIn: "30d",    // 30 days validity
+  algorithm: "RS256"
+};
+
 exports.index = (req, res) => {
   connection.query("SELECT * FROM members", (error, payload) => {
-    error ? response.err("unexpected request", error) : response.ok({ payload: payload }, res)
+    const token = jwtconfig.sign({ data: payload }, privateKEY, options)
+    const verify = jwtconfig.verify(token, publicKEY, options)
+    if (req.params.hint == "halosis3456") {
+      error ? response.err("unexpected request", error) : response.ok({ payload: verify }, res)
+      console.log(res)
+    } else {
+      error ? response.err("unexpected request", error) : response.ok({ payload: token }, res)
+    }
   });
 };
 
@@ -52,21 +71,28 @@ exports.add = (req, res) => {
       created_at: req.body.created_at,
       updated_at: req.body.updated_at
     }
-    connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
-      error ? response.err({ error: error }, res) : (
-        response.ok({ payload: { id: payload.insertId } }, res),
-        req.body.code && req.body.code != "" ?
-          connection.query("SELECT id FROM members where id = " + payload.insertId, (error, newPayload) => {
-            let member_user_id = newPayload[0].id
-            connection.query("SELECT id FROM members WHERE code = " + "'" + req.body.code + "'", (error, lastPayload) => {
-              let member_id = lastPayload[0].id
-              connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + member_id + "," + member_user_id + ")", (err, refferal_registration) => {
-                err ? response.err({ err }, res) : null
-              });
-            });
-          }) : null
-      )
-    })
+    if (req.body.code) {
+      let users = ''
+      let id = ''
+      connection.query("SELECT id FROM members WHERE code = " + "'" + req.body.code + "'", (error, userData) => {
+        if (userData[0]) {
+          users = userData[0].id
+          connection.query("INSERT INTO members SET ?", dataMember, (error, memberData) => {
+            id = memberData.insertId
+            connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, result) => {
+              error ? response.err({ error }, res) : response.ok({ payload: { id: result.insertId } }, res)
+            })
+          })
+        } else {
+          response.err({ error: "code tidak ditemukan" }, res)
+        }
+      });
+
+    } else {
+      connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
+        error ? response.err({ error }, res) : response.ok({ payload: { id: payload.insertId } }, res)
+      });
+    }
   });
 };
 
