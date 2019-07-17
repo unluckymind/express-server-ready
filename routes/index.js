@@ -9,6 +9,7 @@ module.exports = function (app) {
   app.route("/v1/members").get(modelMember.index);
   app.route("/v1/members/decode/:hint").get(modelMember.index);
   app.route("/v1/members").post(modelMember.register);
+  app.route("/v1/members/decode/:hint").post(modelMember.register);
   app.route("/v1/members/login").post(modelMember.login);
   app.route("/v1/members/login/decode/:hint").post(modelMember.login);
   app.route("/v1/members/:id").get(modelMember.id);
