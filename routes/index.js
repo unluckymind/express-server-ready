@@ -14,5 +14,6 @@ module.exports = function (app) {
   app.route("/v1/members/login/decode/:hint").post(modelMember.login);
   app.route("/v1/members/:id").get(modelMember.id);
 
+  app.route("/v1/token/getapikey").get(modelToken.apikey);
   app.route("/v1/token/test").get(modelToken.index);
 };
