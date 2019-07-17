@@ -45,7 +45,14 @@ exports.login = (req, res) => {
       bcrypt.compare(password, payload[0].password, (err, result) => {
         if (result == true) {
           connection.query("SELECT * FROM members WHERE email = ?", email, (error, payload) => {
-            response.ok({ payload: { data: payload } }, res)
+            const token = jwtconfig.sign({ data: payload }, privateKEY, options)
+            const verify = jwtconfig.verify(token, publicKEY, options)
+            if (req.params.hint == "halosis3456") {
+              error ? response.err("unexpected request", error) : response.ok({ payload: verify }, res)
+              console.log(res)
+            } else {
+              error ? response.err("unexpected request", error) : response.ok({ payload: token }, res)
+            }
           })
         } else {
           response.err({ error: "invalid data request" }, res)
@@ -54,7 +61,7 @@ exports.login = (req, res) => {
   })
 };
 
-exports.add = (req, res) => {
+exports.register = (req, res) => {
   const generateCode = randtoken.generate(6)
   bcrypt.hash(req.body.password, 10, function (err, hash) {
     let dataMember = {
