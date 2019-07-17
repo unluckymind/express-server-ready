@@ -25,7 +25,7 @@ exports.index = (req, res) => {
       error ? response.err("unexpected request", error) : response.ok({ payload: verify }, res)
       console.log(res)
     } else {
-      error ? response.err("unexpected request", error) : response.ok({ payload: token }, res)
+      error ? response.err("unexpected request", error) : response.ok({ payload: { data: token } }, res)
     }
   });
 };
@@ -51,7 +51,7 @@ exports.login = (req, res) => {
               error ? response.err("unexpected request", error) : response.ok({ payload: verify }, res)
               console.log(res)
             } else {
-              error ? response.err("unexpected request", error) : response.ok({ payload: token }, res)
+              error ? response.err("unexpected request", error) : response.ok({ payload: { data: token } }, res)
             }
           })
         } else {
@@ -96,7 +96,7 @@ exports.register = (req, res) => {
                   if (req.params.hint == "halosis3456") {
                     error ? response.err({ error }, res) : response.ok({ payload: verify }, res)
                   } else {
-                    error ? response.err({ error }, res) : response.ok({ payload: token }, res)
+                    error ? response.err({ error }, res) : response.ok({ payload: { data: token } }, res)
                   }
                 })
               })
@@ -118,7 +118,7 @@ exports.register = (req, res) => {
             if (req.params.hint == "halosis3456") {
               error ? response.err({ error }, res) : response.ok({ payload: verify }, res)
             } else {
-              error ? response.err({ error }, res) : response.ok({ payload: token }, res)
+              error ? response.err({ error }, res) : response.ok({ payload: { data: token } }, res)
             }
           });
         }
