@@ -2,31 +2,13 @@
 
 const response = require("../../config/payload_config");
 const connection = require("../../config/connection");
-const jwtconfig = require("../webtoken/config");
-const fs = require('fs');
-const privateKEY = fs.readFileSync('./private.key', 'utf8');
-const publicKEY = fs.readFileSync('./public.key', 'utf8');
 const randtoken = require('rand-token');
 const bcrypt = require('bcrypt');
 
-const options = {
-  issuer: "halosis",
-  subject: "dea.aprizal@gmail.com",
-  audience: "http://halosis.co.id",
-  expiresIn: "30d",    // 30 days validity
-  algorithm: "RS256"
-};
 
 exports.index = (req, res) => {
   connection.query("SELECT * FROM members", (error, payload) => {
-    const token = jwtconfig.sign({ data: payload }, privateKEY, options)
-    const verify = jwtconfig.verify(token, publicKEY, options)
-    if (req.params.hint == "halosis3456") {
-      error ? response.err("unexpected request", error) : response.ok({ payload: verify }, res)
-      console.log(res)
-    } else {
-      error ? response.err("unexpected request", error) : response.ok({ payload: { data: token } }, res)
-    }
+    error ? response.err("unexpected request", error) : response.ok({ payload: { data: payload } }, res)
   });
 };
 
@@ -45,14 +27,7 @@ exports.login = (req, res) => {
       bcrypt.compare(password, payload[0].password, (err, result) => {
         if (result == true) {
           connection.query("SELECT * FROM members WHERE email = ?", email, (error, payload) => {
-            const token = jwtconfig.sign({ data: payload }, privateKEY, options)
-            const verify = jwtconfig.verify(token, publicKEY, options)
-            if (req.params.hint == "halosis3456") {
-              error ? response.err("unexpected request", error) : response.ok({ payload: verify }, res)
-              console.log(res)
-            } else {
-              error ? response.err("unexpected request", error) : response.ok({ payload: { data: token } }, res)
-            }
+            error ? response.err("unexpected request", error) : response.ok({ payload: { data: payload } }, res)
           })
         } else {
           response.err({ error: "invalid data request" }, res)
@@ -91,13 +66,7 @@ exports.register = (req, res) => {
               connection.query("INSERT INTO members SET ?", dataMember, (error, memberData) => {
                 id = memberData.insertId
                 connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
-                  const token = jwtconfig.sign({ data: { id: payload.insertId } }, privateKEY, options)
-                  const verify = jwtconfig.verify(token, publicKEY, options)
-                  if (req.params.hint == "halosis3456") {
-                    error ? response.err({ error }, res) : response.ok({ payload: verify }, res)
-                  } else {
-                    error ? response.err({ error }, res) : response.ok({ payload: { data: token } }, res)
-                  }
+                  error ? response.err({ error }, res) : response.ok({ payload: { data: payload } }, res)
                 })
               })
             } else {
@@ -113,13 +82,7 @@ exports.register = (req, res) => {
           response.err({ error: "email already exist" }, res)
         } else {
           connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
-            const token = jwtconfig.sign({ data: { id: payload.insertId } }, privateKEY, options)
-            const verify = jwtconfig.verify(token, publicKEY, options)
-            if (req.params.hint == "halosis3456") {
-              error ? response.err({ error }, res) : response.ok({ payload: verify }, res)
-            } else {
-              error ? response.err({ error }, res) : response.ok({ payload: { data: token } }, res)
-            }
+            error ? response.err({ error }, res) : response.ok({ payload: { data: payload } }, res)
           });
         }
       })
