@@ -14,6 +14,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+
 var jwtCheck = jwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
@@ -32,26 +33,16 @@ var jwtCheck = jwt({
 
 app.use(jwtCheck)
 
+var routes = require("./routes")
+routes(app);
+
 app.use((error, req, res, next) => {
   if (error.name === 'UnauthorizedError') {
     return response.err({
       error
     }, res);
   }
-  if (res.status(404)) {
-    return response.err({
-      error
-    }, res);
-  }
-  if (res.status(500)) {
-    return response.err({
-      error
-    }, res);
-  }
 });
-
-var routes = require("./routes")
-routes(app);
 
 app.listen(port);
 console.log("running server on port: " + port);
