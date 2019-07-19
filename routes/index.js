@@ -14,4 +14,4 @@ module.exports = function (app) {
 
   app.route("/v1/tokens/apikey").get(modelToken.apikey);
   app.route("/v1/tokens/test").get(modelToken.index);
-};
+}
