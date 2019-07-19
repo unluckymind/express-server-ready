@@ -11,8 +11,8 @@ exports.ok = function (values, res) {
 
 exports.err = function (values, res) {
   var data = {
-    statusCode: res.statusCode,
-    values: values
+    statusCode: values.error.status,
+    error: { message: values.error.message }
   };
   res.json(data);
   res.end();

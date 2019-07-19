@@ -7,6 +7,7 @@ var express = require("express"),
 const jwt = require('express-jwt');
 const jwksRsa = require('jwks-rsa');
 var unless = require('express-unless');
+const response = require("./config/payload_config");
 
 app.use(morgan("combine"));
 app.use(cors());
@@ -30,6 +31,24 @@ var jwtCheck = jwt({
 });
 
 app.use(jwtCheck)
+
+app.use((error, req, res, next) => {
+  if (error.name === 'UnauthorizedError') {
+    return response.err({
+      error
+    }, res);
+  }
+  if (res.status(404)) {
+    return response.err({
+      error
+    }, res);
+  }
+  if (res.status(500)) {
+    return response.err({
+      error
+    }, res);
+  }
+});
 
 var routes = require("./routes")
 routes(app);
