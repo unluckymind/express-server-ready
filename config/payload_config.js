@@ -1,15 +1,24 @@
 "use strict";
 
-exports.ok = function (values, res) {
+exports.ok = function (datas, res) {
   var data = {
     statusCode: res.statusCode,
-    values: values
+    payload: datas
   };
   res.json(data);
   res.end();
 };
 
-exports.err = function (values, res) {
+exports.err = function (error, res) {
+  var data = {
+    statusCode: res.statusCode,
+    error: error
+  };
+  res.json(data);
+  res.end();
+};
+
+exports.errAuthorize = function (values, res) {
   var data = {
     statusCode: values.error.status,
     error: { message: values.error.message }

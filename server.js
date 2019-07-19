@@ -38,11 +38,11 @@ routes(app);
 
 app.use((error, req, res, next) => {
   if (error.name === 'UnauthorizedError') {
-    return response.err({
+    return response.errAuthorize({
       error
     }, res);
   }
 });
 
 app.listen(port);
-console.log("running server on port: " + port);
+console.log("express RESTful API starting on " + port);
