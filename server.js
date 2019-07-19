@@ -6,6 +6,7 @@ var express = require("express"),
   cors = require("cors");
 const jwt = require('express-jwt');
 const jwksRsa = require('jwks-rsa');
+var unless = require('express-unless');
 
 app.use(morgan("combine"));
 app.use(cors());
@@ -22,11 +23,15 @@ var jwtCheck = jwt({
   audience: 'https://sh-api',
   issuer: 'https://dev-sahabathalosis.auth0.com/',
   algorithms: ['RS256']
+}).unless({
+  path: [
+    '/v1/tokens/apikey'
+  ]
 });
 
-app.use(jwtCheck);
+app.use(jwtCheck)
 
-var routes = require("./routes");
+var routes = require("./routes")
 routes(app);
 
 app.listen(port);

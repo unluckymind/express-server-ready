@@ -8,14 +8,14 @@ const bcrypt = require('bcrypt');
 
 exports.index = (req, res) => {
   connection.query("SELECT * FROM members", (error, payload) => {
-    error ? response.err("unexpected request", error) : response.ok({ payload: { data: payload } }, res)
+    error ? response.err({ error: { code: error.code } }, error) : response.ok({ payload: { data: payload } }, res)
   });
 };
 
 exports.id = (req, res) => {
   const id = req.params.id
   connection.query("SELECT * FROM members where id = " + id, (error, payload) => {
-    error ? response.err("unexpected request", error) : response.ok({ payload: { data: payload } }, res)
+    error ? response.err({ error: { code: error.code } }, error) : response.ok({ payload: { data: payload } }, res)
   });
 };
 
@@ -23,11 +23,11 @@ exports.login = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   connection.query("SELECT password FROM members WHERE email = ?", email, (error, payload) => {
-    error ? response.err("unexpected request", error) : payload.length > 0 ?
+    error ? response.err({ error: { code: error.code } }, error) : payload.length > 0 ?
       bcrypt.compare(password, payload[0].password, (err, result) => {
         if (result == true) {
           connection.query("SELECT * FROM members WHERE email = ?", email, (error, payload) => {
-            error ? response.err("unexpected request", error) : response.ok({ payload: { data: payload } }, res)
+            error ? response.err({ error: { code: error.code } }, error) : response.ok({ payload: { data: payload } }, res)
           })
         } else {
           response.err({ error: "invalid data request" }, res)
@@ -57,6 +57,9 @@ exports.register = (req, res) => {
       let users = ''
       let id = ''
       connection.query("SELECT id FROM members WHERE code = " + "'" + req.body.code + "'", (error, userData) => {
+        if (error) {
+          response.err({ error: { code: error.code } }, res)
+        }
         connection.query("SELECT COUNT(*) as emailExist FROM members WHERE email = " + "'" + req.body.email + "'", (error, validation) => {
           if (validation[0].emailExist > 0) {
             response.err({ error: "email already exist" }, res)
@@ -64,9 +67,12 @@ exports.register = (req, res) => {
             if (userData[0]) {
               users = userData[0].id
               connection.query("INSERT INTO members SET ?", dataMember, (error, memberData) => {
+                if (error) {
+                  respone.err({ error: { code: error.code } }, res)
+                }
                 id = memberData.insertId
                 connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
-                  error ? response.err({ error }, res) : response.ok({ payload: { data: payload } }, res)
+                  error ? response.err({ error: { code: error.code } }, res) : response.ok({ payload: { data: { id: payload.insertId } } }, res)
                 })
               })
             } else {
@@ -82,7 +88,7 @@ exports.register = (req, res) => {
           response.err({ error: "email already exist" }, res)
         } else {
           connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
-            error ? response.err({ error }, res) : response.ok({ payload: { data: payload } }, res)
+            error ? response.err({ error: { code: error.code } }, res) : response.ok({ payload: { data: { id: payload.insertId } } }, res)
           });
         }
       })
