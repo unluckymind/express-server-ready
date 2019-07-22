@@ -3,17 +3,27 @@ var express = require("express"),
   port = process.env.PORT || 3000,
   bodyParser = require("body-parser"),
   morgan = require("morgan"),
-  cors = require("cors");
-const jwt = require('express-jwt');
-const jwksRsa = require('jwks-rsa');
-var unless = require('express-unless');
-const response = require("./config/payload_config");
+  cors = require("cors"),
+  compression = require('compression'),
+  helmet = require('helmet'),
+  cookieParser = require('cookie-parser'),
+  createError = require('http-errors'),
+  jwt = require('express-jwt'),
+  jwksRsa = require('jwks-rsa'),
+  unless = require('express-unless'),
+  response = require("./config/payload_config"),
+  http = require('http'),
+  debug = require('debug')('express-server-ready:server'),
+  hostname = '10.148.0.21';
+
 
 app.use(morgan("combine"));
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(helmet());
+app.use(compression());
+app.use(cookieParser());
 app.use(bodyParser.json());
-
 
 var jwtCheck = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -27,7 +37,10 @@ var jwtCheck = jwt({
   algorithms: ['RS256']
 }).unless({
   path: [
-    '/v1/tokens/apikey'
+    '/v1/tokens/apikey',
+    '/v1/',
+    '/goDbAdmin',
+    '/'
   ]
 });
 
@@ -44,5 +57,12 @@ app.use((error, req, res, next) => {
   }
 });
 
-app.listen(port);
-console.log("express RESTful API starting on " + port);
+if (process.env.NODE_ENV === 'production') {
+  app.listen(port, hostname, () => {
+    console.log(`express PROD RESTful API starting on ${hostname}:${port}/`);
+  });
+} else {
+  app.listen(port, () => {
+    console.log(`express DEV RESTful API starting on :${port}`);
+  });
+}

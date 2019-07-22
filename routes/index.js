@@ -5,6 +5,7 @@ module.exports = function (app) {
   const modelMember = require("../model/members");
   const modelToken = require("../model/webtoken");
 
+  app.route("/").get(model.main);
   app.route("/v1/").get(model.index);
   app.route("/v1/members").get(modelMember.index);
   app.route("/v1/members/:id").get(modelMember.id);
