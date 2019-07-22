@@ -1,6 +1,6 @@
 var express = require("express"),
   app = express(),
-  port = process.env.PORT || 3000,
+  port = process.env.PORT || 5000,
   bodyParser = require("body-parser"),
   morgan = require("morgan"),
   cors = require("cors"),
@@ -13,7 +13,9 @@ var express = require("express"),
   unless = require('express-unless'),
   response = require("./config/payload_config"),
   http = require('http'),
-  debug = require('debug')('express-server-ready:server');
+  debug = require('debug')('express-server-ready:server'),
+  hostname = '35.240.153.128';
+
 
 app.use(morgan("combine"));
 app.use(cors());
@@ -53,66 +55,13 @@ app.use((error, req, res, next) => {
   }
 });
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-const server = http.createServer(app)
-
-
-app.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('App is Up and Running!\n');
+});
 
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
-console.log("express RESTful API starting on " + port);
+server.listen(port, hostname, () => {
+  console.log(`express RESTful API starting on ${hostname}:${port}/`);
+});
