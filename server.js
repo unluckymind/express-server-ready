@@ -39,7 +39,8 @@ var jwtCheck = jwt({
   path: [
     '/v1/tokens/apikey',
     '/v1/',
-	'/goDbAdmin'
+	'/goDbAdmin',
+'/'
   ]
 });
 
