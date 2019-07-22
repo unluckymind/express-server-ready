@@ -1,6 +1,6 @@
 var express = require("express"),
   app = express(),
-  port = process.env.PORT || 5000,
+  port = process.env.PORT || 3000,
   bodyParser = require("body-parser"),
   morgan = require("morgan"),
   cors = require("cors"),
@@ -14,7 +14,7 @@ var express = require("express"),
   response = require("./config/payload_config"),
   http = require('http'),
   debug = require('debug')('express-server-ready:server'),
-  hostname = '35.240.153.128';
+  hostname = '10.148.0.21';
 
 
 app.use(morgan("combine"));
@@ -38,7 +38,8 @@ var jwtCheck = jwt({
 }).unless({
   path: [
     '/v1/tokens/apikey',
-    '/v1/'
+    '/v1/',
+	'/goDbAdmin'
   ]
 });
 
@@ -55,13 +56,7 @@ app.use((error, req, res, next) => {
   }
 });
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('App is Up and Running!\n');
-});
 
-
-server.listen(port, hostname, () => {
+app.listen(port, hostname, () => {
   console.log(`express RESTful API starting on ${hostname}:${port}/`);
 });

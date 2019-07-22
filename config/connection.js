@@ -2,13 +2,13 @@ const mysql = require("mysql");
 
 const con = mysql.createConnection({
   host: "localhost",
-  user: "admin",
-  password: "PJYwD5uvR3sXWCG8h",
+  user: "root",
+  password: "root",
   database: "sahabat_db"
 });
 
 con.connect((err) => {
-  err ? err : "success"
+  err ? console.log(err) : console.log("success")
 })
 
 module.exports = con;
