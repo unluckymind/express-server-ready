@@ -57,12 +57,6 @@ app.use((error, req, res, next) => {
   }
 });
 
-if (process.env.NODE_ENV === 'production') {
   app.listen(port, hostname, () => {
     console.log(`express PROD RESTful API starting on ${hostname}:${port}/`);
   });
-} else {
-  app.listen(port, () => {
-    console.log(`express DEV RESTful API starting on :${port}`);
-  });
-}
