@@ -1,8 +1,8 @@
 const mysql = require("mysql");
 
-let users = 'admin'
+let users = ''
 let passwords = 'PJYwD5uvR3sXWCG8h'
-let databases = 'sahabat_db'
+let databases = ''
 let hosts = 'localhost'
 let ports = '3306'
 
