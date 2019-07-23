@@ -6,7 +6,7 @@ let databases = 'sahabat_db'
 let hosts = 'localhost'
 let ports = '3306'
 
-/*if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
   users = 'root'
   passwords = ''
   database = 'sahabathalosis'
@@ -14,15 +14,14 @@ let ports = '3306'
   users = 'admin'
   passwords = 'PJYwD5uvR3sXWCG8h'
   database = 'sahabat_db'
-}*/
+}
 
 const con = mysql.createConnection({
   host: hosts,
   user: users,
   password: passwords,
   database: databases,
-  port: ports,
-timeout: 60000
+  port: ports
 });
 
 console.log('user:' + users);
