@@ -3,7 +3,7 @@ const mysql = require("mysql");
 let users = 'admin'
 let passwords = 'PJYwD5uvR3sXWCG8h'
 let databases = 'sahabat_db'
-let hosts = '35.240.153.128'
+let hosts = 'localhost'
 let ports = '3306'
 
 /*if (process.env.NODE_ENV !== 'production') {
