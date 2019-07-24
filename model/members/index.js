@@ -136,7 +136,7 @@ exports.register = (req, res) => {
                   response.err({ code: error.code }, res)
                 }
                 id = memberData.insertId
-                connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + users + "," + id + ")", (error, payload) => {
+                connection.query("INSERT INTO member_users (member_id, member_user_id, created_at) VALUES " + "(" + users + "," + id + "," + 'now()' + ")", (error, payload) => {
                   connection.query("SELECT id, code FROM members where id = " + users, (error, payload) => {
                     error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload[0].id, code: payload[0].code } }, res)
                   });
