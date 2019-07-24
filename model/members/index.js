@@ -21,7 +21,7 @@ exports.id = (req, res) => {
 
 exports.userList = (req, res) => {
   const id = req.params.id
-  connection.query("select member_users.member_user_id, members.name, members.email, members.phone, members.image, members.dob, members.city, members.gender from member_users inner join members on members.id = member_users.member_user_id where member_users.member_id = " + id, (error, payload) => {
+  connection.query("select member_users.member_user_id, members.name, members.email, members.phone, members.image, members.dob, members.city, members.gender, member_users.created_at from member_users inner join members on members.id = member_users.member_user_id where member_users.member_id = " + id, (error, payload) => {
     error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
   });
 };
