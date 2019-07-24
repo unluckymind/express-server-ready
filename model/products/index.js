@@ -3,8 +3,6 @@
 const response = require("../../config/payload_config");
 const connection = require("../../config/connection");
 
-let time = new Date()
-
 exports.index = (req, res) => {
     connection.query("SELECT * FROM log_shares", (error, payload) => {
         error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
