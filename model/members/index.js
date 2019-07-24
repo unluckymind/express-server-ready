@@ -130,7 +130,10 @@ exports.register = (req, res) => {
                 }
                 id = memberData.insertId
                 connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
-                  error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload.insertId } }, res)
+                  const id = payload.insertId
+                  connection.query("SELECT id, code FROM members where id = " + id, (error, payload) => {
+                    error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload[0].id, code: payload[0].code } }, res)
+                  });
                 })
               })
             } else {
