@@ -32,9 +32,9 @@ exports.update = (req, res) => {
     name: req.body.name,
     phone: req.body.phone,
     email: req.body.email,
-    gender: req.body.gender,
-    city: req.body.city,
-    bod: req.body.bod
+    gender: req.body.gender || "",
+    city: req.body.city || "",
+    dob: req.body.dob || null
   }
 
   connection.query("SELECT COUNT(*) as rowcount FROM members where id = " + id, (error, isExist) => {

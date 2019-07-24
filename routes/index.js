@@ -15,7 +15,7 @@ module.exports = function (app) {
   app.route("/v1/members").post(modelMember.register);
   app.route("/v1/members/dashboard").post(modelMember.login);
 
-  app.route("/v1/members  ").put(modelMember.update);
+  app.route("/v1/members").put(modelMember.update);
   app.route("/v1/members/password").put(modelMember.updatePassword);
 
   app.route("/v1/products/log").get(modelProduct.index);
