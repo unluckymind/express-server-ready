@@ -15,7 +15,7 @@ exports.index = (req, res) => {
 exports.id = (req, res) => {
   const id = req.params.id
   connection.query("SELECT * FROM members where id = " + id, (error, payload) => {
-    error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
+    error ? response.err({ code: error.code }, error) : response.ok({ data: payload[0] }, res)
   });
 };
 
@@ -86,7 +86,7 @@ exports.login = (req, res) => {
         bcrypt.compare(password, payload[0].password, (err, result) => {
           if (result == true) {
             connection.query("SELECT * FROM members WHERE email = ?", email, (error, payload) => {
-              error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
+              error ? response.err({ code: error.code }, error) : response.ok({ data: payload[0] }, res)
             })
           } else {
             response.err({ message: "invalid data request" }, res)
