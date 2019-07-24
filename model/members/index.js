@@ -19,6 +19,60 @@ exports.id = (req, res) => {
   });
 };
 
+exports.update = (req, res) => {
+  const id = req.body.id
+  const data = {
+    name: req.body.name,
+    phone: req.body.phone,
+    email: req.body.email,
+    gender: req.body.gender,
+    city: req.body.city,
+    bod: req.body.bod
+  }
+
+  connection.query("SELECT COUNT(*) as rowcount FROM members where id = " + id, (error, isExist) => {
+    if (isExist[0].rowcount != 1) {
+      response.err({ message: "member is not exist" }, res)
+    } else {
+      connection.query(`UPDATE members SET ? where id = '${id}'`, data, (error, payload) => {
+        error ? response.err({ code: error.code }, error) : response.ok({ data: payload.affectedRows }, res)
+      });
+    }
+  });
+}
+exports.updatePassword = (req, res) => {
+  bcrypt.hash(req.body.verifyPassword, 10, function (err, hash) {
+    const id = req.body.id
+
+    let oldPassword = req.body.oldPassword,
+      newPassword = req.body.newPassword,
+      verifyPassword = req.body.verifyPassword,
+      dbPassword = '';
+
+    if (!id || !oldPassword) {
+      response.err({ message: "invalid data request" }, res)
+    } else {
+      connection.query("SELECT password FROM members where id = " + id, (error, datas) => {
+        dbPassword = datas[0].password
+        bcrypt.compare(oldPassword, dbPassword, function (err, result) {
+          if (result == true) {
+            if (verifyPassword != newPassword) {
+              response.err({ message: "invalid data request" }, res)
+            } else {
+              connection.query(`UPDATE members SET password = '${hash}' where id = '${id}'`, (error, payload) => {
+                error ? response.err({ code: error.code }, error) : response.ok({ data: payload.affectedRows }, res)
+              });
+            }
+          } else {
+            response.err({ message: "invalid data request" }, res)
+          }
+        });
+      });
+    }
+  });
+}
+
+
 exports.login = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -78,7 +132,7 @@ exports.register = (req, res) => {
                 }
                 id = memberData.insertId
                 connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
-                  error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload.insertId } }, res)
+                  error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload.insertId, code: payload.code } }, res)
                 })
               })
             } else {
