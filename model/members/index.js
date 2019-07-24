@@ -132,7 +132,7 @@ exports.register = (req, res) => {
                 }
                 id = memberData.insertId
                 connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
-                  error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload.insertId } }, res)
+                  error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload.insertId, code: payload.code } }, res)
                 })
               })
             } else {
