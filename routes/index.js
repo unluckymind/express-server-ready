@@ -10,6 +10,7 @@ module.exports = function (app) {
   app.route("/v1").get(model.index);
   app.route("/v1/members").get(modelMember.index);
   app.route("/v1/members/:id").get(modelMember.id);
+  app.route("/v1/members/:id/user").get(modelMember.userList);
 
   app.route("/v1/members").post(modelMember.register);
   app.route("/v1/members/dashboard").post(modelMember.login);
@@ -19,6 +20,7 @@ module.exports = function (app) {
 
   app.route("/v1/products/log").get(modelProduct.index);
   app.route("/v1/products/log").post(modelProduct.save);
+
 
   app.route("/v1/tokens/apikey").get(modelToken.apikey);
 }
