@@ -19,6 +19,13 @@ exports.id = (req, res) => {
   });
 };
 
+exports.userList = (req, res) => {
+  const id = req.params.id
+  connection.query("select member_users.member_user_id, members.name, members.email, members.phone, members.image, members.dob, members.city, members.gender from member_users inner join members on members.id = member_users.member_user_id where member_users.member_id = " + id, (error, payload) => {
+    error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
+  });
+};
+
 exports.update = (req, res) => {
   const id = req.body.id
   const data = {
@@ -129,9 +136,8 @@ exports.register = (req, res) => {
                   response.err({ code: error.code }, res)
                 }
                 id = memberData.insertId
-                connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
-                  const id = payload.insertId
-                  connection.query("SELECT id, code FROM members where id = " + id, (error, payload) => {
+                connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + users + "," + id + ")", (error, payload) => {
+                  connection.query("SELECT id, code FROM members where id = " + users, (error, payload) => {
                     error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload[0].id, code: payload[0].code } }, res)
                   });
                 })
