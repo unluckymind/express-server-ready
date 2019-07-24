@@ -106,12 +106,10 @@ exports.register = (req, res) => {
       email: req.body.email,
       gender: req.body.gender || "",
       city: req.body.city || "",
-      bod: req.body.bod || null,
+      dob: req.body.dob || null,
       password: hash,
       code: generateCode,
       status: 1,
-      created_at: req.body.created_at,
-      updated_at: req.body.updated_at
     }
     if (req.body.code && req.body.password && req.body.email) {
       let users = ''
@@ -126,13 +124,13 @@ exports.register = (req, res) => {
           } else {
             if (userData[0]) {
               users = userData[0].id
-              connection.query("INSERT INTO members SET ?", dataMember, (error, memberData) => {
+              connection.query("INSERT INTO members SET created_at = now(), ?", dataMember, (error, memberData) => {
                 if (error) {
                   response.err({ code: error.code }, res)
                 }
                 id = memberData.insertId
                 connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
-                  error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload.insertId, code: payload.code } }, res)
+                  error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload.insertId } }, res)
                 })
               })
             } else {
@@ -147,8 +145,11 @@ exports.register = (req, res) => {
         if (validation[0].emailExist > 0) {
           response.err({ message: "email already exist" }, res)
         } else {
-          connection.query("INSERT INTO members SET ?", dataMember, (error, payload) => {
-            error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload.insertId } }, res)
+          connection.query("INSERT INTO members SET created_at = now(), ?", dataMember, (error, payload) => {
+            const id = payload.insertId
+            connection.query("SELECT id, code FROM members where id = " + id, (error, payload) => {
+              error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload[0].id, code: payload[0].code } }, res)
+            });
           });
         }
       })
