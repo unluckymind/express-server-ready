@@ -25,7 +25,7 @@ app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.static(__dirname + "/"))
-app.use('/public', serveIndex(__dirname + '/public'));
+app.use('/static', serveIndex(__dirname + '/static'));
 
 var jwtCheck = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -43,7 +43,7 @@ var jwtCheck = jwt({
     '/v1/',
     '/goDbAdmin',
     '/',
-    '/public'
+    '/static'
   ]
 });
 
