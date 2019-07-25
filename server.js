@@ -14,8 +14,8 @@ var express = require("express"),
   response = require("./config/payload_config"),
   http = require('http'),
   debug = require('debug')('express-server-ready:server'),
+  serveIndex = require('serve-index'),
   hostname = '10.148.0.21';
-
 
 app.use(morgan("combine"));
 app.use(cors());
@@ -24,6 +24,8 @@ app.use(helmet());
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(express.static(__dirname + "/"))
+app.use('/static', serveIndex(__dirname + '/static'));
 
 var jwtCheck = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -40,7 +42,8 @@ var jwtCheck = jwt({
     '/v1/tokens/apikey',
     '/v1/',
     '/goDbAdmin',
-    '/'
+    '/',
+    '/static'
   ]
 });
 

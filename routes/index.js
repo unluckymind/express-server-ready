@@ -10,12 +10,14 @@ module.exports = function (app) {
   app.route("/v1").get(model.index);
   app.route("/v1/members").get(modelMember.index);
   app.route("/v1/members/:id").get(modelMember.id);
+  app.route("/v1/members/:id/user").get(modelMember.userList);
 
   app.route("/v1/members").post(modelMember.register);
   app.route("/v1/members/dashboard").post(modelMember.login);
 
-  app.route("/v1/members  ").put(modelMember.update);
+  app.route("/v1/members").put(modelMember.update);
   app.route("/v1/members/password").put(modelMember.updatePassword);
+  app.route("/v1/members/image").put(modelMember.updateImage);
 
   app.route("/v1/products/log").get(modelProduct.index);
   app.route("/v1/products/log").post(modelProduct.save);

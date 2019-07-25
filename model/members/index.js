@@ -4,7 +4,16 @@ const response = require("../../config/payload_config");
 const connection = require("../../config/connection");
 const randtoken = require('rand-token');
 const bcrypt = require('bcrypt');
-
+const multer = require("multer");
+const fs = require("fs");
+var path = require('path');
+const storage = multer.diskStorage({
+  destination : path.join(__dirname + './../../static'),
+  filename: function(req, file, cb){
+      cb(null, file.fieldname + Date.now() +
+      path.extname(file.originalname));
+  }
+});
 
 exports.index = (req, res) => {
   connection.query("SELECT * FROM members", (error, payload) => {
@@ -19,15 +28,22 @@ exports.id = (req, res) => {
   });
 };
 
+exports.userList = (req, res) => {
+  const id = req.params.id
+  connection.query("select member_users.member_user_id, members.name, members.email, members.phone, members.image, members.dob, members.city, members.gender, member_users.created_at from member_users inner join members on members.id = member_users.member_user_id where member_users.member_id = " + id, (error, payload) => {
+    error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
+  });
+};
+
 exports.update = (req, res) => {
   const id = req.body.id
   const data = {
     name: req.body.name,
     phone: req.body.phone,
     email: req.body.email,
-    gender: req.body.gender,
-    city: req.body.city,
-    bod: req.body.bod
+    gender: req.body.gender || "",
+    city: req.body.city || "",
+    dob: req.body.dob || null
   }
 
   connection.query("SELECT COUNT(*) as rowcount FROM members where id = " + id, (error, isExist) => {
@@ -71,6 +87,37 @@ exports.updatePassword = (req, res) => {
     }
   });
 }
+
+exports.updateImage = (req, res) => {
+  const upload = multer({ storage : storage}).single("image");
+
+    upload(req,res,function(error) {
+
+      if(!req.file){
+        response.err({ message: "invalid data request" }, res)
+      } else {
+        connection.query(`SELECT image FROM members WHERE id = '${req.body.id}'`, (err, result) => {
+          const oldImage = result[0].image;
+            if(oldImage != null){
+              
+              fs.unlink("./static/"+oldImage, (err) => {
+                if (err) {
+                  response.err({ code: err.code }, res);
+                }
+              });
+            }
+        });
+        
+        if(error) {
+          return response.err({ message: "upload error" }, res);
+        } else {
+          connection.query(`UPDATE members SET image = '${req.file.filename}' where id = '${req.body.id}'`, (error, payload) => {
+            error ? response.err({ code: error.code }, res) : response.ok({ data: payload.affectedRows }, res)
+          });
+        }
+      }
+    });
+  }
 
 
 exports.login = (req, res) => {
@@ -129,9 +176,8 @@ exports.register = (req, res) => {
                   response.err({ code: error.code }, res)
                 }
                 id = memberData.insertId
-                connection.query("INSERT INTO member_users (member_id, member_user_id) VALUES " + "(" + id + "," + users + ")", (error, payload) => {
-                  const id = payload.insertId
-                  connection.query("SELECT id, code FROM members where id = " + id, (error, payload) => {
+                connection.query("INSERT INTO member_users (member_id, member_user_id, created_at) VALUES " + "(" + users + "," + id + "," + 'now()' + ")", (error, payload) => {
+                  connection.query("SELECT id, code FROM members where id = " + users, (error, payload) => {
                     error ? response.err({ code: error.code }, res) : response.ok({ data: { id: payload[0].id, code: payload[0].code } }, res)
                   });
                 })
