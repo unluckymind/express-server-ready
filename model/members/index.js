@@ -4,7 +4,16 @@ const response = require("../../config/payload_config");
 const connection = require("../../config/connection");
 const randtoken = require('rand-token');
 const bcrypt = require('bcrypt');
-
+const multer = require("multer");
+const fs = require("fs");
+var path = require('path');
+const storage = multer.diskStorage({
+  destination : path.join(__dirname + './../../public'),
+  filename: function(req, file, cb){
+      cb(null, file.fieldname + Date.now() +
+      path.extname(file.originalname));
+  }
+});
 
 exports.index = (req, res) => {
   connection.query("SELECT * FROM members", (error, payload) => {
@@ -78,6 +87,37 @@ exports.updatePassword = (req, res) => {
     }
   });
 }
+
+exports.updateImage = (req, res) => {
+  const upload = multer({ storage : storage}).single("image");
+
+    upload(req,res,function(error) {
+
+      if(!req.file){
+        response.err({ message: "invalid data request" }, res)
+      } else {
+        connection.query(`SELECT image FROM members WHERE id = '${req.body.id}'`, (err, result) => {
+          const oldImage = result[0].image;
+            if(oldImage != null){
+              
+              fs.unlink("./public/"+oldImage, (err) => {
+                if (err) {
+                  response.err({ code: err.code }, res);
+                }
+              });
+            }
+        });
+        
+        if(error) {
+          return response.err({ message: "upload error" }, res);
+        } else {
+          connection.query(`UPDATE members SET image = '${req.file.filename}' where id = '${req.body.id}'`, (error, payload) => {
+            error ? response.err({ code: error.code }, res) : response.ok({ data: payload.affectedRows }, res)
+          });
+        }
+      }
+    });
+  }
 
 
 exports.login = (req, res) => {

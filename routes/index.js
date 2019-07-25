@@ -17,6 +17,8 @@ module.exports = function (app) {
 
   app.route("/v1/members").put(modelMember.update);
   app.route("/v1/members/password").put(modelMember.updatePassword);
+  app.route("/v1/members/image").put(modelMember.updateImage);
+
 
   app.route("/v1/products/log").get(modelProduct.index);
   app.route("/v1/products/log").post(modelProduct.save);
