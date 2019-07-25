@@ -8,7 +8,7 @@ const multer = require("multer");
 const fs = require("fs");
 var path = require('path');
 const storage = multer.diskStorage({
-  destination : path.join(__dirname + './../../public'),
+  destination : path.join(__dirname + './../../static'),
   filename: function(req, file, cb){
       cb(null, file.fieldname + Date.now() +
       path.extname(file.originalname));
@@ -100,7 +100,7 @@ exports.updateImage = (req, res) => {
           const oldImage = result[0].image;
             if(oldImage != null){
               
-              fs.unlink("./public/"+oldImage, (err) => {
+              fs.unlink("./static/"+oldImage, (err) => {
                 if (err) {
                   response.err({ code: err.code }, res);
                 }
