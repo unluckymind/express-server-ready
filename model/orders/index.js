@@ -14,6 +14,6 @@ exports.customer_phone = (req, res) => {
     connection.query("SELECT * FROM orders where customer_phone = " + customer_phone, (error, payload) => {
         error ? response.err({ code: error.code }, res) :
         payload.length == 0 ? response.err({ message: "data not found" }, res) : 
-        response.ok({ data: payload[0] }, res)
+        response.ok({ data: payload }, res)
     });
 };
