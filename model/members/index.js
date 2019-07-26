@@ -99,8 +99,7 @@ exports.updateImage = (req, res) => {
       connection.query(`SELECT image FROM members WHERE id = '${req.body.id}'`, (err, result) => {
         const oldImage = result[0].image;
         if (oldImage != null) {
-
-          fs.unlink("./static/" + oldImage, (err) => {
+          fs.unlink("./static/images/profile/" + oldImage, (err) => {
             if (err) {
               response.err({ code: err.code }, res);
             }
