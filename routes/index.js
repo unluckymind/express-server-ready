@@ -27,7 +27,8 @@ module.exports = function (app) {
   app.route("/v1/products/log").get(modelProduct.index);
   app.route("/v1/products/log/:member_id").get(modelProduct.member_id);
   app.route("/v1/products/log").post(modelProduct.save);
-
+  
+  //API LOG POINT
   app.route("/v1/points").post(modelPoint.save);
   app.route("/v1/points/:phone_number").get(modelPoint.phone_number);
 
