@@ -101,7 +101,6 @@ exports.updateImage = (req, res) => {
         if (oldImage != null) {
           fs.unlink("./static/images/profile/" + oldImage, (err) => {
             if (err) throw err;
-            console.log('path/file.txt was deleted');
           });
         }
       });
