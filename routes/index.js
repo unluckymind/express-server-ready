@@ -6,7 +6,6 @@ module.exports = function (app) {
   const modelToken = require("../model/webtoken");
   const modelProduct = require("../model/products");
   const modelPoint = require("../model/point");
-  const modelOrders = require("../model/orders");
   const modelCms = require("../model/cms")
 
   app.route("/").get(model.main);
@@ -31,10 +30,6 @@ module.exports = function (app) {
 
   app.route("/v1/points").post(modelPoint.save);
   app.route("/v1/points/:phone_number").get(modelPoint.phone_number);
-
-  // API ORDER
-  app.route("/v1/orders").get(modelOrders.index);
-  app.route("/v1/orders/:customer_phone").get(modelOrders.customer_phone);
 
   // API CMS
   app.route("/v1/cms").get(modelCms.index);
