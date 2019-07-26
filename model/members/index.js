@@ -100,9 +100,7 @@ exports.updateImage = (req, res) => {
         const oldImage = result[0].image;
         if (oldImage != null) {
           fs.unlink("./static/images/profile/" + oldImage, (err) => {
-            if (err) {
-              response.err({ code: err.code }, res);
-            }
+            if (err) throw err;
           });
         }
       });
