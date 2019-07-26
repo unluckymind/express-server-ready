@@ -6,7 +6,7 @@ const response = require("../../config/payload_config"),
     fs = require("fs"),
     path = require('path'),
     storage = multer.diskStorage({
-        destination: path.join(__dirname + './../../static/cms'),
+        destination: path.join(__dirname + './../../static/images/cms'),
         filename: function (req, file, data) {
             data(null, file.fieldname + Date.now() +
                 path.extname(file.originalname));

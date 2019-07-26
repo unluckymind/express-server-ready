@@ -43,8 +43,7 @@ var jwtCheck = jwt({
     '/v1/',
     '/goDbAdmin',
     '/',
-    '/static',
-    '/static/cms'
+    '/static'
   ]
 });
 
