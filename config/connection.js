@@ -2,16 +2,14 @@ const mysql = require("mysql");
 
 let users = ''
 let passwords = ''
-let databases = ''
+let databases = 'sahabat_db'
 
 if (process.env.NODE_ENV !== 'production') {
   users = 'root'
   passwords = ''
-  databases = 'sahabathalosis'
 } else {
   users = 'admin'
   passwords = 'PJYwD5uvR3sXWCG8h'
-  databases = 'sahabat_db'
 }
 
 const con = mysql.createConnection({
