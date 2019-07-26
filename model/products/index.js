@@ -32,7 +32,6 @@ exports.member_id = (req, res) => {
     const member_id = req.params.member_id
     connection.query("SELECT * FROM log_shares where member_id = " + member_id, (error, payload) => {
         error ? response.err({ code: error.code }, res) :
-        payload.length == 0 ? response.err({ message: "data not found" }, res) : 
         response.ok({ data: payload }, res)
     });
 };
