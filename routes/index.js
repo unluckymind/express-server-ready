@@ -33,8 +33,11 @@ module.exports = function (app) {
 
   // API CMS
   app.route("/v1/cms").get(modelCms.index);
+  app.route("/v1/cms/:id").get(modelCms.id);
   app.route("/v1/cms").post(modelCms.save);
   app.route("/v1/cms").delete(modelCms.remove);
+  app.route("/v1/cms").put(modelCms.update);
+
 
   // API TOKEN AUTHORIZATION
   app.route("/v1/tokens/apikey").get(modelToken.apikey);
