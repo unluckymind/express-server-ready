@@ -8,7 +8,7 @@ const response = require("../../config/payload_config"),
     storage = multer.diskStorage({
         destination: path.join(__dirname + './../../static/images/cms'),
         filename: function (req, file, data) {
-            data(null, file.fieldname + Date.now() +
+            data(null, file.fieldname + "_" + Date.now() +
                 path.extname(file.originalname));
         }
     });
@@ -36,3 +36,10 @@ exports.save = (req, res) => {
         })
     })
 }
+
+exports.remove = (req, res) => {
+    const id = req.body.id
+    connection.query("DELETE FROM banners WHERE id = " + id, (error, payload) => {
+        error ? response.err({ code: error.code }, error) : response.ok({ data: payload.affectedRows }, res)
+    });
+};
