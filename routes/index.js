@@ -33,8 +33,9 @@ module.exports = function (app) {
   app.route("/v1/orders/:customer_phone").get(modelOrders.customer_phone);
 
   // API CMS
-  app.route("/v1/cms").post(modelCms.save);
   app.route("/v1/cms").get(modelCms.index);
+  app.route("/v1/cms").post(modelCms.save);
+  app.route("/v1/cms").delete(modelCms.remove);
 
   // API TOKEN AUTHORIZATION
   app.route("/v1/tokens/apikey").get(modelToken.apikey);
