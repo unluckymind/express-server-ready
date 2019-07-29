@@ -2,7 +2,6 @@ const mysql = require("mysql");
 
 let users = ''
 let passwords = ''
-let hosts = ''
 let databases = 'sahabat_db'
 let hosts = ''
 
