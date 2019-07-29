@@ -8,9 +8,9 @@ const multer = require("multer");
 const fs = require("fs");
 var path = require('path');
 const storage = multer.diskStorage({
-  destination : path.join(__dirname + './../../static'),
-  filename: function(req, file, cb){
-      cb(null, file.fieldname + Date.now() +
+  destination: path.join(__dirname + './../../static/images/profile'),
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + "_" + Date.now() +
       path.extname(file.originalname));
   }
 });
@@ -30,7 +30,7 @@ exports.id = (req, res) => {
 
 exports.userList = (req, res) => {
   const id = req.params.id
-  connection.query("select member_users.member_user_id, members.name, members.email, members.phone, members.image, members.dob, members.city, members.gender, member_users.created_at from member_users inner join members on members.id = member_users.member_user_id where member_users.member_id = " + id, (error, payload) => {
+  connection.query("select member_users.member_user_id, members.name, members.email, members.phone, members.image, members.dob, members.city, members.gender, member_users.created_at, members.point from member_users inner join members on members.id = member_users.member_user_id where member_users.member_id = " + id, (error, payload) => {
     error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
   });
 };
@@ -89,35 +89,32 @@ exports.updatePassword = (req, res) => {
 }
 
 exports.updateImage = (req, res) => {
-  const upload = multer({ storage : storage}).single("image");
+  const upload = multer({ storage: storage }).single("image");
 
-    upload(req,res,function(error) {
+  upload(req, res, function (error) {
 
-      if(!req.file){
-        response.err({ message: "invalid data request" }, res)
-      } else {
-        connection.query(`SELECT image FROM members WHERE id = '${req.body.id}'`, (err, result) => {
-          const oldImage = result[0].image;
-            if(oldImage != null){
-              
-              fs.unlink("./static/"+oldImage, (err) => {
-                if (err) {
-                  response.err({ code: err.code }, res);
-                }
-              });
-            }
-        });
-        
-        if(error) {
-          return response.err({ message: "upload error" }, res);
-        } else {
-          connection.query(`UPDATE members SET image = '${req.file.filename}' where id = '${req.body.id}'`, (error, payload) => {
-            error ? response.err({ code: error.code }, res) : response.ok({ data: payload.affectedRows }, res)
+    if (!req.file) {
+      response.err({ message: "invalid data request" }, res)
+    } else {
+      connection.query(`SELECT image FROM members WHERE id = '${req.body.id}'`, (err, result) => {
+        const oldImage = result[0].image;
+        if (oldImage != null) {
+          fs.unlink("./static/images/profile/" + oldImage, (err) => {
+            if (err) throw err;
           });
         }
+      });
+
+      if (error) {
+        return response.err({ message: "upload error" }, res);
+      } else {
+        connection.query(`UPDATE members SET image = '${req.file.filename}' where id = '${req.body.id}'`, (error, payload) => {
+          error ? response.err({ code: error.code }, res) : response.ok({ data: payload.affectedRows }, res)
+        });
       }
-    });
-  }
+    }
+  });
+}
 
 
 exports.login = (req, res) => {
