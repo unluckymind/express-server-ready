@@ -20,7 +20,7 @@ exports.save = (req, res) => {
             
         })  
     });
-    total = req.body.grand_total / 100000;
+    total = req.body.grand_total / 1000;
     connection.query("SELECT point FROM members WHERE phone = "+ phone, (err, point) => {
         var sum_point = point[0].point + Math.trunc(total);
         connection.query(`UPDATE members SET point = '${sum_point}' where phone = '${phone}'`, (er,rslt) => {
