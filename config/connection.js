@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const con = mysql.createConnection({
-  host: 'localhost',
+  host: '35.197.148.245',
   user: users,
   password: passwords,
   database: databases,
