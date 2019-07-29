@@ -4,6 +4,7 @@ let users = ''
 let passwords = ''
 let hosts = ''
 let databases = 'sahabat_db'
+let hosts = ''
 
 if (process.env.NODE_ENV !== 'production') {
   users = 'root'
