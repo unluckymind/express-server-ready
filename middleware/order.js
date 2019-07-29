@@ -28,11 +28,7 @@ exports.index = (req, res) => {
                 created_at: get.created_at.date
             }
             connection.query("INSERT INTO orders SET ?", [data], (error, payload) => {
-                if (error) {
-                    console.log("uppsss! something went wrong. database not updated")
-                } else {
-                    console.log("cron job succeed: ", payload)
-                }
+                error ? console.log("uppsss! something went wrong. database not updated") : console.log("cron job succeed: ", payload)
             })
         })
         response.ok({ data: { message: "running cron job ..." } }, res)
