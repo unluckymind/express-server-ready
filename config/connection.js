@@ -2,6 +2,7 @@ const mysql = require("mysql");
 
 let users = ''
 let passwords = ''
+let hosts = ''
 let databases = 'sahabat_db'
 let hosts = ''
 
@@ -10,8 +11,8 @@ if (process.env.NODE_ENV !== 'production') {
   hosts = 'localhost'
   passwords = ''
 } else {
-  users = 'admin',
-    hosts = '35.197.148.245'
+  users = 'admin'
+  hosts = '35.197.148.245'
   passwords = 'PJYwD5uvR3sXWCG8h'
 }
 
