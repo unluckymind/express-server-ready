@@ -219,20 +219,11 @@ exports.register = (req, res) => {
                         response.err({ code: error.code }, res);
                       }
                       id = memberData.insertId;
-
-                      let dataMemberUsers = {
-                        member_id : users,
-                        member_user_id : id
-                      }
-
-                      connection.query(db.SAHABAT(dataMemberUsers).members.insertMemberUser, (err, payload) => {
-                          console.log(payload)
-
-                        // connection.query(db.SAHABAT().members.getIdCodeById + users,
-                          //   (error, payload) => {
-                          //     error ? response.err({ code: error.code }, res)
-                          //     : response.ok({data: {id: payload[0].id, code: payload[0].code}},res);
-                          // });
+                      connection.query(db.SAHABAT(users, id).members.insertMemberUser, (err, payload) => {
+                        connection.query(db.SAHABAT().members.getIdCodeById + users, (error, payload) => {
+                              error ? response.err({ code: error.code }, res)
+                              : response.ok({data: {id: payload[0].id, code: payload[0].code}},res);
+                          });
                       });
                     });
                 } else {
@@ -244,33 +235,20 @@ exports.register = (req, res) => {
         }
       );
     } else {
-      connection.query(
-        "SELECT COUNT(*) as emailExist FROM members WHERE email = " +
-          "'" +
-          req.body.email +
-          "'",
+      connection.query(db.SAHABAT().members.countByEmail + "'" +req.body.email + "'",
         (error, validation) => {
           if (validation[0].emailExist > 0) {
             response.err({ message: "email already exist" }, res);
           } else {
             connection.query(
-              "INSERT INTO members SET created_at = now(), ?",
-              dataMember,
+              db.SAHABAT().members.insertMember, dataMember,
               (error, payload) => {
                 const id = payload.insertId;
-                connection.query(
-                  "SELECT id, code FROM members where id = " + id,
+                connection.query(db.SAHABAT().members.getIdCodeById + id,
                   (error, payload) => {
-                    error
-                      ? response.err({ code: error.code }, res)
-                      : response.ok(
-                          {
-                            data: { id: payload[0].id, code: payload[0].code }
-                          },
-                          res
-                        );
-                  }
-                );
+                    error ? response.err({ code: error.code }, res)
+                      : response.ok({data: { id: payload[0].id, code: payload[0].code }},res);
+                });
               }
             );
           }

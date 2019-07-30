@@ -12,10 +12,10 @@ CMS = (id) => {
     return ({banners,body});
 }
 
-SAHABAT = (id) => {
+SAHABAT = (id, data) => {
     let members = {
         insertMember : "INSERT INTO members SET created_at = now(), ?",
-        insertMemberUser : "INSERT INTO `member_users` SET created_at = now(), ?" + id,
+        insertMemberUser : `INSERT INTO member_users (member_id, member_user_id, creaeted_at) VALUES ('${id}', '${data}', now())`,
         get : "SELECT * FROM members",
         getById : "SELECT * FROM members WHERE id = ",
         getPasswordByEmail : "SELECT password FROM members WHERE email = ",
@@ -29,7 +29,18 @@ SAHABAT = (id) => {
         updatePassword : "UPDATE members SET ? WHERE id = " + id,
         updateImage : "UPDATE members SET ? WHERE id = " + id
     }
-    return ({members})
+    let log_points = {
+        getOrderNumberByPhone : "SELECT order_number FROM log_points WHERE customer_phone = ",
+        insert : "INSERT INTO log_points (order_number, customer_phone, price_total) VALUES ",
+        getPointsByPhone : "SELECT point FROM members WHERE phone = ",
+        updatePoints : "UPDATE members SET ?  WHERE phone = " + id
+    }
+    let products = {
+        get : "SELECT * FROM log_shares",
+        insert : "INSERT INTO log_shares SET created_at = now(), ?",
+        getByMemberId : "SELECT * FROM log_shares where member_id = "
+    }
+    return ({members, log_points, products})
 } 
 
 module.exports = {
