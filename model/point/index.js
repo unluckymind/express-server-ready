@@ -1,8 +1,8 @@
 "use strict";
 
-const response = require("../../config/payload_config");
-const connection = require("../../config/connection");
-const db = require("../../helpers/query");
+const response = require("../../config/payload_config"),
+    connection = require("../../config/connection"),
+    db = require("../../helpers/query");
 
 exports.phone_number = (req, res) => {
     const phone_number = req.params.phone_number

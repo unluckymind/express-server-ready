@@ -1,22 +1,23 @@
 "use strict";
 
-const db = require("../../helpers/query");
-const response = require("../../config/payload_config");
-const connection = require("../../config/connection");
-const randtoken = require("rand-token");
-const bcrypt = require("bcrypt");
-const multer = require("multer");
-const fs = require("fs");
-var path = require("path");
-const storage = multer.diskStorage({
-  destination: path.join(__dirname + "./../../static/images/profile"),
-  filename: function(req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "_" + Date.now() + path.extname(file.originalname)
-    );
-  }
-});
+const db = require("../../helpers/query"),
+      response = require("../../config/payload_config"),
+      connection = require("../../config/connection"),
+      randtoken = require("rand-token"),
+      bcrypt = require("bcrypt"),
+      multer = require("multer"),
+      maxSize = 1 * 1024 * 1024,
+      fs = require("fs"),
+      path = require("path"),
+      storage = multer.diskStorage({
+        destination: path.join(__dirname + "./../../static/images/profile"),
+        filename: function(req, file, cb) {
+          cb(
+            null,
+            file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+          );
+        }
+      });
 
 exports.index = (req, res) => {
   connection.query(db.SAHABAT().members.get, (error, payload) => {
@@ -113,18 +114,19 @@ exports.updatePassword = (req, res) => {
 };
 
 exports.updateImage = (req, res) => {
-  const upload = multer({ storage: storage }).single("image");
+  const upload = multer({ 
+        storage: storage,
+        limits: { fileSize: maxSize } 
+    }).single("image");
 
   upload(req, res, function(error) {
-    let insertImage = {
-      image: req.file.filename
-    };
     if (!req.file) {
-      response.err({ message: "invalid data request" }, res);
+      response.err({ message: "no image attached or image too large" }, res)      
     } else {
-      connection.query(
-        db.SAHABAT().members.getById + req.body.id,
-        (err, result) => {
+      let insertImage = {
+        image: req.file.filename
+      };
+      connection.query(db.SAHABAT().members.getById + req.body.id, (err, result) => {
           const oldImage = result[0].image;
           if (oldImage != null) {
             fs.unlink("./static/images/profile/" + oldImage, err => {
@@ -133,7 +135,6 @@ exports.updateImage = (req, res) => {
           }
         }
       );
-
       if (error) {
         return response.err({ message: "upload error" }, res);
       } else {

@@ -1,20 +1,21 @@
 "use strict";
 
 const response = require("../../config/payload_config"),
-  connection = require("../../config/connection"),
-  db = require("../../helpers/query"),
-  multer = require("multer"),
-  fs = require("fs"),
-  path = require("path"),
-  storage = multer.diskStorage({
-    destination: path.join(__dirname + "./../../static/images/cms"),
-    filename: function(req, file, data) {
-      data(
-        null,
-        file.fieldname + "_" + Date.now() + path.extname(file.originalname)
-      );
-    }
-  });
+      connection = require("../../config/connection"),
+      db = require("../../helpers/query"),
+      multer = require("multer"),
+      fs = require("fs"),
+      path = require("path"),
+      maxSize = 5 * 1024 * 1024,
+      storage = multer.diskStorage({
+        destination: path.join(__dirname + "./../../static/images/cms"),
+        filename: function(req, file, data) {
+          data(
+            null,
+            file.fieldname + "_" + Date.now() + path.extname(file.originalname)
+          );
+        }
+      });
 
 exports.index = (req, res) => {
   connection.query(db.CMS().banners.get, (errorQuery, payload) => {
@@ -34,12 +35,14 @@ exports.id = (req, res) => {
 };
 
 exports.save = (req, res) => {
-    const saveToFolder = multer({ storage: storage }).single("image")
+    const saveToFolder = multer({ 
+        storage: storage,
+        limits: { fileSize: maxSize }
+       }).single("image")
         saveToFolder(req, res, () => {
           if (!req.file) {
             console.log('no image attached')
-            response.err({ message: "no image attached, please upload an image" }, res)
-            
+            response.err({ message: "no image attached or image too large" }, res)
           } else {
               const datas = {
                   title: req.body.title,
@@ -54,38 +57,43 @@ exports.save = (req, res) => {
                   }
               })
           }
-
-        })
+      })
 }
 
 exports.update = (req, res) => {
-  const saveToFolder = multer({ storage: storage }).single("image");
+  const saveToFolder = multer({ 
+    storage: storage,
+    limits: { fileSize: maxSize }
+  }).single("image")
 
   saveToFolder(req, res, errorSavingFile => {
     const id = req.body.id;
-    const datas = {
-      title: req.body.title,
-      image: req.file.filename,
-      status: req.body.status
-    };
-    connection.query(db.CMS().banners.getById + id, (err, old) => {
-      if (old[0].Image != "") {
-        fs.unlink("./static/images/cms/" + old[0].image, errorRemovingFile => {
-          if (errorRemovingFile) {
-            response.err({ code: errorRemovingFile.code }, res);
+    if(!req.file){
+      response.err({ message: "no image attached or image too large" }, res)
+    } else {
+      if (errorSavingFile) {
+        return response.err({ message: "upload to server fail.." }, res);
+      } else {
+        connection.query(db.CMS().banners.getById + id, (err, old) => {
+          if (old[0].Image != "") {
+            fs.unlink("./static/images/cms/" + old[0].image, err => {
+              if (err) throw err;
+            });
           }
         });
+        const datas = {
+          title: req.body.title,
+          image: req.file.filename,
+          status: req.body.status
+        };
+        connection.query(db.CMS(id).banners.update, datas,
+          (errorQuery, payload) => {
+            errorQuery ? response.err({ code: errorQuery.code }, res) : response.ok({ data: payload.affectedRows }, res);
+          }
+        );
       }
-    });
-    if (errorSavingFile) {
-      return response.err({ message: "upload to server fail..." }, res);
-    } else {
-      connection.query(db.CMS(id).banners.update, datas,
-        (errorQuery, payload) => {
-          errorQuery ? response.err({ code: errorQuery.code }, res) : response.ok({ data: payload.affectedRows }, res);
-        }
-      );
     }
+    
   });
 };
 
@@ -93,10 +101,8 @@ exports.remove = (req, res) => {
   const id = req.body.id;
   connection.query(db.CMS().banners.getById + id, (err, old) => {
     if (old[0].Image != "") {
-      fs.unlink("./static/images/cms/" + old[0].image, errorRemovingFile => {
-        if (errorRemovingFile) {
-          response.err({ code: errorRemovingFile.code }, res);
-        }
+      fs.unlink("./static/images/cms/" + old[0].image, err => {
+        if (err) throw err;
       });
     }
   });
