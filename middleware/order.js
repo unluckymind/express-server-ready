@@ -4,9 +4,8 @@ const db = require("../helpers/query"),
     response = require("../config/payload_config"),
     connection = require("../config/connection"),
     axios = require('axios'),
-    token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjozOTg0LCJ2ZW5kb3JfaWQiOjU3LCJ2ZW5kb3JfbmFtZSI6IlRva28gSGFuYSIsInZlbmRvcl9lbWFpbCI6InRva29oYW5hLmNvQGdtYWlsLmNvbSIsInJvbGUiOiJWRU5ET1IiLCJpYXQiOjE1NjAzMjYzNzUsImV4cCI6MTU5MTg2MjM3NX0.-kMayI3sKc_1lfJeWYka2jKp2QaiEWkO34yvHxfMvYWKmso3MKqaHzfUY093kFz_czocbxp5J8UFGHuRqo1gaA';
-
-const Message = require("../helpers/messages");
+    token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjozOTg0LCJ2ZW5kb3JfaWQiOjU3LCJ2ZW5kb3JfbmFtZSI6IlRva28gSGFuYSIsInZlbmRvcl9lbWFpbCI6InRva29oYW5hLmNvQGdtYWlsLmNvbSIsInJvbGUiOiJWRU5ET1IiLCJpYXQiOjE1NjAzMjYzNzUsImV4cCI6MTU5MTg2MjM3NX0.-kMayI3sKc_1lfJeWYka2jKp2QaiEWkO34yvHxfMvYWKmso3MKqaHzfUY093kFz_czocbxp5J8UFGHuRqo1gaA',
+    Message = require("../helpers/messages");
 
 exports.index = (req, res) => {
     axios({

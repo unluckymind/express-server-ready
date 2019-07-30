@@ -1,12 +1,12 @@
 "use strict";
 
 const db = require("../../helpers/query"),
+      Message = require("../../helpers/messages"),
       response = require("../../config/payload_config"),
       connection = require("../../config/connection"),
       randtoken = require("rand-token"),
       bcrypt = require("bcrypt"),
       multer = require("multer"),
-      maxSize = 5 * 1024 * 1024,
       fs = require("fs"),
       path = require("path"),
       storage = multer.diskStorage({
@@ -22,7 +22,7 @@ const db = require("../../helpers/query"),
 exports.index = (req, res) => {
   connection.query(db.SAHABAT().members.get, (error, payload) => {
     error
-      ? response.err({ code: error.code }, error)
+      ? response.err({ code: error.code }, res)
       : response.ok({ data: payload }, res);
   });
 };
@@ -31,7 +31,7 @@ exports.id = (req, res) => {
   const id = req.params.id;
   connection.query(db.SAHABAT().members.getById + id, (error, payload) => {
     error
-      ? response.err({ code: error.code }, error)
+      ? response.err({ code: error.code }, res)
       : response.ok({ data: payload[0] }, res);
   });
 };
@@ -115,29 +115,32 @@ exports.updatePassword = (req, res) => {
 
 exports.updateImage = (req, res) => {
   const upload = multer({ 
-        storage: storage,
-        limits: { fileSize: maxSize } 
+        storage: storage 
     }).single("image");
 
   upload(req, res, function(error) {
+
     if (!req.file) {
-      response.err({ message: "no image attached or image too large" }, res)      
-    } else {
-      let insertImage = {
-        image: req.file.filename
-      };
-      connection.query(db.SAHABAT().members.getById + req.body.id, (err, result) => {
-          const oldImage = result[0].image;
-          if (oldImage != null) {
-            fs.unlink("./static/images/profile/" + oldImage, err => {
-              if (err) throw err;
-            });
-          }
-        }
-      );
+      response.err({ message: "no image attached" }, res)      
+    } else if(req.file.size > 5000000){
+      response.err({ message: "image too large" }, res) 
+    } else{
+
       if (error) {
         return response.err({ message: Message.UPLOAD_FAILED }, res);
       } else {
+        let insertImage = {
+          image: req.file.filename
+        };
+        connection.query(db.SAHABAT().members.getById + req.body.id, (err, result) => {
+            const oldImage = result[0].image;
+            if (oldImage != null) {
+              fs.unlink("./static/images/profile/" + oldImage, err => {
+                if (err) response.err({ message: "image not unlink" }, res);
+              });
+            }
+          }
+        );
         connection.query(
           db.SAHABAT(req.body.id).members.updateImage,
           insertImage,
@@ -165,12 +168,12 @@ exports.login = (req, res) => {
   } else {
     connection.query(db.SAHABAT().members.getPasswordByEmail + "'" + email + "'",
       (error, payload) => {
-        error ? response.err({ code: error.code }, error) : payload.length > 0
+        error ? response.err({ code: error.code }, res) : payload.length > 0
           ? bcrypt.compare(password, payload[0].password, (err, result) => {
             if (result == true) {
               connection.query(db.SAHABAT().members.getMemberByEmail + "'" + email + "'",
                 (error, payload) => {
-                  error ? response.err({ code: error.code }, error) : response.ok({ data: payload[0] }, res);
+                  error ? response.err({ code: error.code }, res) : response.ok({ data: payload[0] }, res);
                 }
               );
             } else {
