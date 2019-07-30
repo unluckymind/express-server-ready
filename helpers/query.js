@@ -1,4 +1,3 @@
-"use strict";
 CMS = (id) => {
     let banners = {
         get: "SELECT * FROM banners",

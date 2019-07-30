@@ -1,10 +1,6 @@
-const mysql = require('mysql');
-const Message = require('../helpers/messages')
+const mysql = require('mysql'), Message = require('../helpers/messages')
 
-let users = ''
-let passwords = ''
-let databases = 'sahabat_db'
-let hosts = ''
+let users = '', passwords = '', databases = 'sahabat_db', hosts = '';
 
 if (process.env.NODE_ENV !== 'production') {
   users = 'root'
