@@ -126,7 +126,7 @@ exports.updateImage = (req, res) => {
 
       response.err({ message: Message.UPLOAD_LARGER }, res)
       fs.unlink("./static/images/profile/" + req.file.filename, err => {
-        if (err) response.err({ message: Message.UPLOAD_FAILED }, res);
+        if (err) response.err({ message: Message.DELETE_IMAGE }, res);
       });
       
     } else{
@@ -141,7 +141,7 @@ exports.updateImage = (req, res) => {
             const oldImage = result[0].image;
             if (oldImage != null) {
               fs.unlink("./static/images/profile/" + oldImage, err => {
-                if (err) response.err({ message: Message.UPLOAD_FAILED }, res);
+                if (err) response.err({ message: Message.DELETE_IMAGE }, res);
               });
             }
           }

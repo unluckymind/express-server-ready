@@ -10,6 +10,7 @@ const Messages = {
 
     UPLOAD_SUCCESS: "attachment uploaded success",
     UPLOAD_FAILED: "attachment is not uploaded",
+    DELETE_IMAGE: "image not deleted",
 
     CRONJOB_RUN: "cron job is running...",
     CRONJOB_SUCCESS: "cron job succeed",

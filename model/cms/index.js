@@ -51,7 +51,7 @@ exports.save = (req, res) => {
       size > 5000000 ? (
         response.err({ message: Message.UPLOAD_LARGER }, res),
         fs.unlink("./static/images/cms/" + req.file.filename, err => {
-          if (err) throw err;
+          if (err) response.err({ message: Message.DELETE_IMAGE }, res);
         })
       )
         :
@@ -74,26 +74,34 @@ exports.update = (req, res) => {
     const size = req.file.size
     const id = req.body.id;
     if (!req.file) {
-      response.err({ message: "no image attached" }, res)
+
+      response.err({ message: Message.UPLOAD_FAILED }, res)
+
+    } else if(size > 5000000){
+
+      response.err({ message: Message.UPLOAD_LARGER }, res),
+      fs.unlink("./static/images/cms/" + req.file.filename, err => {
+        if (err) response.err({ message: Message.DELETE_IMAGE }, res);
+      })
+     
     } else {
+
+      connection.query(db.CMS().banners.getById + id, (err, old) => {
+        if (old[0].Image != "") {
+          fs.unlink("./static/images/cms/" + old[0].image, err => {
+            if (err) response.err({ message: Message.DELETE_IMAGE }, res);
+          });
+        }
+      });
       const datas = {
         title: req.body.title,
         image: req.file.filename,
         status: req.body.status
       };
-      size > 5000000 ? response.err({ message: Message.UPLOAD_LARGER }, res) :
-        connection.query(db.CMS().banners.getById + id, (err, old) => {
-          if (old[0].Image != "") {
-            fs.unlink("./static/images/cms/" + old[0].image, err => {
-              if (err) throw err;
-            });
-          }
-        });
       connection.query(db.CMS(id).banners.update, datas,
         (errorQuery, payload) => {
-          // errorQuery ? response.err({ code: errorQuery.code }, res) : response.ok({ data: payload.affectedRows }, res);
-        }
-      );
+          errorQuery ? response.err({ code: errorQuery.code }, res) : response.ok({ data: payload.affectedRows }, res);
+      });
     }
   });
 };
