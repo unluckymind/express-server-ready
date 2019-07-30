@@ -7,6 +7,7 @@ module.exports = function (app) {
   const modelProduct = require("../model/products");
   const modelPoint = require("../model/point");
   const modelCms = require("../model/cms")
+  const middleWareOrder = require("../middleware/order")
 
   app.route("/").get(model.main);
   app.route("/v1").get(model.index);
@@ -39,6 +40,7 @@ module.exports = function (app) {
   app.route("/v1/cms/banners").delete(modelCms.remove);
   app.route("/v1/cms/banners").put(modelCms.update);
 
+  app.route("/v1/orders/history").get(middleWareOrder.index);
 
   // API TOKEN AUTHORIZATION
   app.route("/v1/tokens/apikey").get(modelToken.apikey);
