@@ -58,7 +58,7 @@ exports.update = (req, res) => {
 
   connection.query(db.SAHABAT().members.countMember + id, (error, isExist) => {
     if (isExist[0].rowcount != 1) {
-      response.err({ message: "member is not exist" }, res);
+      response.err({ message: Message.MEMBER_NOT_EXIST }, res);
     } else {
       connection.query(
         db.SAHABAT(id).members.update,
@@ -74,7 +74,7 @@ exports.update = (req, res) => {
 };
 
 exports.updatePassword = (req, res) => {
-  bcrypt.hash(req.body.verifyPassword, 10, function(err, hash) {
+  bcrypt.hash(req.body.verifyPassword, 10, function (err, hash) {
     const id = req.body.id;
     let insertPassword = {
       password: hash
@@ -85,14 +85,14 @@ exports.updatePassword = (req, res) => {
       dbPassword = "";
 
     if (!id || !oldPassword) {
-      response.err({ message: "invalid data request" }, res);
+      response.err({ message: Message.INVALID_REQ }, res);
     } else {
       connection.query(db.SAHABAT().members.getById + id, (error, datas) => {
         dbPassword = datas[0].password;
-        bcrypt.compare(oldPassword, dbPassword, function(err, result) {
+        bcrypt.compare(oldPassword, dbPassword, function (err, result) {
           if (result == true) {
             if (verifyPassword != newPassword) {
-              response.err({ message: "invalid data request" }, res);
+              response.err({ message: Message.INVALID_REQ }, res);
             } else {
               connection.query(
                 db.SAHABAT(id).members.updatePassword,
@@ -105,7 +105,7 @@ exports.updatePassword = (req, res) => {
               );
             }
           } else {
-            response.err({ message: "invalid data request" }, res);
+            response.err({ message: Message.INVALID_REQ }, res);
           }
         });
       });
@@ -136,7 +136,7 @@ exports.updateImage = (req, res) => {
         }
       );
       if (error) {
-        return response.err({ message: "upload error" }, res);
+        return response.err({ message: Message.UPLOAD_FAILED }, res);
       } else {
         connection.query(
           db.SAHABAT(req.body.id).members.updateImage,
@@ -158,26 +158,26 @@ exports.login = (req, res) => {
   if (!email || !password) {
     response.err(
       {
-        message: "invalid data request"
+        message: Message.INVALID_REQ
       },
       res
     );
   } else {
-    connection.query(db.SAHABAT().members.getPasswordByEmail + "'" + email+ "'",
-      (error, payload) => { 
+    connection.query(db.SAHABAT().members.getPasswordByEmail + "'" + email + "'",
+      (error, payload) => {
         error ? response.err({ code: error.code }, error) : payload.length > 0
           ? bcrypt.compare(password, payload[0].password, (err, result) => {
-              if (result == true) {
-                connection.query(db.SAHABAT().members.getMemberByEmail + "'" + email+ "'",
-                  (error, payload) => {
-                    error ? response.err({ code: error.code }, error) : response.ok({ data: payload[0] }, res);
-                  }
-                );
-              } else {
-                response.err({ message: "invalid data request" }, res);
-              }
-            })
-          : response.err({ message: "invalid data request" }, res);
+            if (result == true) {
+              connection.query(db.SAHABAT().members.getMemberByEmail + "'" + email + "'",
+                (error, payload) => {
+                  error ? response.err({ code: error.code }, error) : response.ok({ data: payload[0] }, res);
+                }
+              );
+            } else {
+              response.err({ message: Message.INVALID_REQ }, res);
+            }
+          })
+          : response.err({ message: Message.INVALID_REQ }, res);
       }
     );
   }
@@ -185,7 +185,7 @@ exports.login = (req, res) => {
 
 exports.register = (req, res) => {
   const generateCode = randtoken.generate(6);
-  bcrypt.hash(req.body.password, 10, function(err, hash) {
+  bcrypt.hash(req.body.password, 10, function (err, hash) {
     let dataMember = {
       name: req.body.name,
       image: req.body.image,
@@ -198,7 +198,7 @@ exports.register = (req, res) => {
       code: generateCode,
       status: 1
     };
-   
+
 
     if (req.body.code && req.body.password && req.body.email) {
       let users = "";
@@ -210,36 +210,36 @@ exports.register = (req, res) => {
           }
           connection.query(db.SAHABAT().members.countByEmail + "'" + req.body.email + "'", (error, validation) => {
 
-              if (validation[0].emailExist > 0) {
-                response.err({ message: "email already exist" }, res);
-              } else {
-                if (userData[0]) {
-                  users = userData[0].id;
-                  connection.query(db.SAHABAT().members.insertMember, dataMember, (error, memberData) => {
-                      if (error) {
-                        response.err({ code: error.code }, res);
-                      }
-                      id = memberData.insertId;
-                      connection.query(db.SAHABAT(users, id).members.insertMemberUser, (err, payload) => {
-                        connection.query(db.SAHABAT().members.getIdCodeById + users, (error, payload) => {
-                              error ? response.err({ code: error.code }, res)
-                              : response.ok({data: {id: payload[0].id, code: payload[0].code}},res);
-                          });
-                      });
+            if (validation[0].emailExist > 0) {
+              response.err({ message: Message.INVALID_REQ }, res);
+            } else {
+              if (userData[0]) {
+                users = userData[0].id;
+                connection.query(db.SAHABAT().members.insertMember, dataMember, (error, memberData) => {
+                  if (error) {
+                    response.err({ code: error.code }, res);
+                  }
+                  id = memberData.insertId;
+                  connection.query(db.SAHABAT(users, id).members.insertMemberUser, (err, payload) => {
+                    connection.query(db.SAHABAT().members.getIdCodeById + users, (error, payload) => {
+                      error ? response.err({ code: error.code }, res)
+                        : response.ok({ data: { id: payload[0].id, code: payload[0].code } }, res);
                     });
-                } else {
-                  response.err({ message: "code tidak ditemukan" }, res);
-                }
+                  });
+                });
+              } else {
+                response.err({ message: Message.INVALID_REFERRAL_CODE }, res);
               }
             }
+          }
           );
         }
       );
     } else {
-      connection.query(db.SAHABAT().members.countByEmail + "'" +req.body.email + "'",
+      connection.query(db.SAHABAT().members.countByEmail + "'" + req.body.email + "'",
         (error, validation) => {
           if (validation[0].emailExist > 0) {
-            response.err({ message: "email already exist" }, res);
+            response.err({ message: Message.EMAIL_EXIST }, res);
           } else {
             connection.query(
               db.SAHABAT().members.insertMember, dataMember,
@@ -248,8 +248,8 @@ exports.register = (req, res) => {
                 connection.query(db.SAHABAT().members.getIdCodeById + id,
                   (error, payload) => {
                     error ? response.err({ code: error.code }, res)
-                      : response.ok({data: { id: payload[0].id, code: payload[0].code }},res);
-                });
+                      : response.ok({ data: { id: payload[0].id, code: payload[0].code } }, res);
+                  });
               }
             );
           }

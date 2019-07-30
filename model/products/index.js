@@ -12,7 +12,7 @@ exports.index = (req, res) => {
 
 exports.save = (req, res) => {
     if (!req.body.member_id && !req.body.page && !req.body.ip) {
-        response.err({ message: "invalid data request" }, res)
+        response.err({ message: Message.INVALID_REQ }, res)
     } else {
         const dataShares = {
             member_id: req.body.member_id,
@@ -33,6 +33,6 @@ exports.member_id = (req, res) => {
     const member_id = req.params.member_id
     connection.query(db.SAHABAT().products.getByMemberId + member_id, (error, payload) => {
         error ? response.err({ code: error.code }, res) :
-        response.ok({ data: payload }, res)
+            response.ok({ data: payload }, res)
     });
 };

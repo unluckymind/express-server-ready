@@ -1,4 +1,4 @@
-var express = require("express"),
+const express = require("express"),
   app = express(),
   port = process.env.PORT || 3000,
   bodyParser = require("body-parser"),
@@ -15,6 +15,7 @@ var express = require("express"),
   http = require('http'),
   debug = require('debug')('express-server-ready:server'),
   serveIndex = require('serve-index'),
+  Message = require('./helpers/messages'),
   hostname = '10.148.0.21';
 
 app.use(morgan("combine"));
@@ -27,7 +28,7 @@ app.use(bodyParser.json());
 app.use(express.static(__dirname + "/"))
 app.use('/static', serveIndex(__dirname + '/static'));
 
-var jwtCheck = jwt({
+const jwtCheck = jwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
     rateLimit: true,
@@ -49,7 +50,7 @@ var jwtCheck = jwt({
 
 app.use(jwtCheck)
 
-var routes = require("./routes")
+const routes = require("./routes")
 routes(app);
 
 app.use((error, req, res, next) => {
@@ -62,10 +63,10 @@ app.use((error, req, res, next) => {
 
 if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
-    console.log(`express DEVELOPMENT RESTful API starting on :${port}/` + process.env.NODE_ENV);
+    console.log(`${Message.DEV_SERVER} :${port}/` + process.env.NODE_ENV);
   });
 } else {
   app.listen(port, hostname, () => {
-    console.log(`express PRODUCTION RESTful API starting on ${hostname}:${port}/` + process.env.NODE_ENV);
+    console.log(`${Message.PROD_SERVER} :${hostname}:${port}/` + process.env.NODE_ENV);
   });
 }
