@@ -121,9 +121,14 @@ exports.updateImage = (req, res) => {
   upload(req, res, function(error) {
 
     if (!req.file) {
-      response.err({ message: "no image attached" }, res)      
+      response.err({ message: Message.UPLOAD_NO_IMAGE }, res)      
     } else if(req.file.size > 5000000){
-      response.err({ message: "image too large" }, res) 
+
+      response.err({ message: Message.UPLOAD_LARGER }, res)
+      fs.unlink("./static/images/profile/" + req.file.filename, err => {
+        if (err) response.err({ message: Message.DELETE_IMAGE }, res);
+      });
+      
     } else{
 
       if (error) {
@@ -136,7 +141,7 @@ exports.updateImage = (req, res) => {
             const oldImage = result[0].image;
             if (oldImage != null) {
               fs.unlink("./static/images/profile/" + oldImage, err => {
-                if (err) response.err({ message: "image not unlink" }, res);
+                if (err) response.err({ message: Message.DELETE_IMAGE }, res);
               });
             }
           }
