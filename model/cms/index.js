@@ -28,20 +28,25 @@ exports.id = (req, res) => {
 
 exports.save = (req, res) => {
     const saveToFolder = multer({ storage: storage }).single("image")
-    saveToFolder(req, res, () => {
-        const datas = {
-            title: req.body.title,
-            image: req.file.filename,
-            status: req.body.status,
-        }
-        connection.query("INSERT INTO banners SET created_at = now(), ?", datas, (error, payload) => {
-            if (error) {
-                response.err({ code: error.code }, res)
-            } else {
-                response.ok({ data: payload.affectedRows }, res)
+    if (!req.file) {
+        console.log('no image attached')
+        response.err({ message: "no image attached, please upload an image" }, res)
+    } else {
+        saveToFolder(req, res, () => {
+            const datas = {
+                title: req.body.title,
+                image: req.file.filename,
+                status: req.body.status,
             }
+            connection.query("INSERT INTO banners SET created_at = now(), ?", datas, (error, payload) => {
+                if (error) {
+                    response.err({ code: error.code }, res)
+                } else {
+                    response.ok({ data: payload.affectedRows }, res)
+                }
+            })
         })
-    })
+    }
 }
 
 exports.update = (req, res) => {
