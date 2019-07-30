@@ -18,6 +18,9 @@ const Messages = {
     INVALID_REFERRAL_CODE: "referrals code not found",
     DATA_NOT_UPDATED: "uppsss! something went wrong. database not updated",
 
+    UPLOAD_LARGER: "image too large",
+    UPLOAD_NO_IMAGE: "no image attached or image too large",
+
     DB_CONNECT: "database connected, current env is on",
 
     DEV_SERVER: "express DEVELOPMENT RESTful API starting on",
