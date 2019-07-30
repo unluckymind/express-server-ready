@@ -8,7 +8,7 @@ const response = require("../../config/payload_config"),
   path = require("path"),
   storage = multer.diskStorage({
     destination: path.join(__dirname + "./../../static/images/cms"),
-    filename: function(req, file, data) {
+    filename: function (req, file, data) {
       data(
         null,
         file.fieldname + "_" + Date.now() + path.extname(file.originalname)
@@ -34,28 +34,28 @@ exports.id = (req, res) => {
 };
 
 exports.save = (req, res) => {
-    const saveToFolder = multer({ storage: storage }).single("image")
-        saveToFolder(req, res, () => {
-          if (!req.file) {
-            console.log('no image attached')
-            response.err({ message: "no image attached, please upload an image" }, res)
-            
-          } else {
-              const datas = {
-                  title: req.body.title,
-                  image: req.file.filename,
-                  status: req.body.status,
-              }
-              connection.query(db.CMS().banners.insert, datas, (error, payload) => {
-                  if (error) {
-                      response.err({ code: error.code }, res)
-                  } else {
-                      response.ok({ data: payload.affectedRows }, res)
-                  }
-              })
-          }
+  const saveToFolder = multer({ storage: storage }).single("image")
+  saveToFolder(req, res, () => {
+    // if (!req.file) {
+    //   console.log('no image attached')
+    //   response.err({ message: "no image attached, please upload an image" }, res)
 
-        })
+    // } else {
+    const datas = {
+      title: req.body.title,
+      // image: req.file.filename,
+      status: req.body.status,
+    }
+    connection.query(db.CMS().banners.insert, datas, (error, payload) => {
+      if (error) {
+        response.err({ code: error.code }, res)
+      } else {
+        response.ok({ data: payload.affectedRows }, res)
+      }
+    })
+    // }
+
+  })
 }
 
 exports.update = (req, res) => {
