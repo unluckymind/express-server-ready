@@ -1,3 +1,4 @@
+"use strict";
 const Messages = {
     INVALID_REQ: "invalid data request",
 
@@ -15,7 +16,9 @@ const Messages = {
     CRONJOB_FAILED: "cron job failed",
 
     INVALID_REFERRAL_CODE: "referrals code not found",
-    DATA_NOT_UPDATED: "uppsss! something went wrong. database not updated"
+    DATA_NOT_UPDATED: "uppsss! something went wrong. database not updated",
+
+    DB_CONNECT: "database connected, current env is on"
 }
 
 module.exports = Messages;

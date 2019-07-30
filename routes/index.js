@@ -40,6 +40,7 @@ module.exports = function (app) {
   app.route("/v1/cms/banners").delete(modelCms.remove);
   app.route("/v1/cms/banners").put(modelCms.update);
 
+  // API CRON JOB
   app.route("/v1/orders/history").get(middleWareOrder.index);
 
   // API TOKEN AUTHORIZATION
