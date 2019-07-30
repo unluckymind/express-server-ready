@@ -1,9 +1,8 @@
 "use strict";
 
-const response = require("../../config/payload_config");
-const connection = require("../../config/connection");
-const db = require("../../helpers/query");
-const Message = require("../../helpers/messages");
+const response = require("../../config/payload_config"),
+    connection = require("../../config/connection"),
+    db = require("../../helpers/query");
 
 exports.index = (req, res) => {
     connection.query(db.SAHABAT().products.get, (error, payload) => {
