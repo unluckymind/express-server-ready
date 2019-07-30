@@ -36,24 +36,23 @@ exports.id = (req, res) => {
 exports.save = (req, res) => {
   const saveToFolder = multer({ storage: storage }).single("image")
   saveToFolder(req, res, () => {
-    // if (!req.file) {
-    //   console.log('no image attached')
-    //   response.err({ message: "no image attached, please upload an image" }, res)
+    if (!req.file) {
+      response.err({ message: "no image attached, please upload an image" }, res)
 
-    // } else {
-    const datas = {
-      title: req.body.title,
-      // image: req.file.filename,
-      status: req.body.status,
-    }
-    connection.query(db.CMS().banners.insert, datas, (error, payload) => {
-      if (error) {
-        response.err({ code: error.code }, res)
-      } else {
-        response.ok({ data: payload.affectedRows }, res)
+    } else {
+      const datas = {
+        title: req.body.title,
+        image: req.file.filename,
+        status: req.body.status,
       }
-    })
-    // }
+      connection.query(db.CMS().banners.insert, datas, (error, payload) => {
+        if (error) {
+          response.err({ code: error.code }, res)
+        } else {
+          response.ok({ data: payload.affectedRows }, res)
+        }
+      })
+    }
 
   })
 }
