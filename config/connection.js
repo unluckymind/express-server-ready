@@ -1,4 +1,4 @@
-const mysql = requiret('mysql');
+const mysql = require('mysql');
 
 let users = ''
 let passwords = ''
