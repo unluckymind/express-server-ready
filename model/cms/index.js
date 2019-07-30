@@ -35,11 +35,13 @@ exports.id = (req, res) => {
 
 exports.save = (req, res) => {
     const saveToFolder = multer({ storage: storage }).single("image")
-    if (!req.file) {
-        console.log('no image attached')
-        response.err({ message: "no image attached, please upload an image" }, res)
-    } else {
+    
         saveToFolder(req, res, () => {
+          if (!req.file) {
+            console.log('no image attached')
+            response.err({ message: "no image attached, please upload an image" }, res)
+            
+        } else {
             const datas = {
                 title: req.body.title,
                 image: req.file.filename,
@@ -52,8 +54,9 @@ exports.save = (req, res) => {
                     response.ok({ data: payload.affectedRows }, res)
                 }
             })
+        }
+
         })
-    }
 }
 
 exports.update = (req, res) => {
