@@ -2,16 +2,18 @@
 
 const response = require("../../config/payload_config"),
     connection = require("../../config/connection"),
-    db = require("../../helpers/query");
+    db = require("../../helpers/query"),
+    Message = require("../../helpers/messages");
+
 
 exports.index = (req, res) => {
     connection.query(db.SAHABAT().products.get, (error, payload) => {
-        error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
+        error ? response.err({ code: error.code }, res) : response.ok({ data: payload }, res)
     });
 };
 
 exports.save = (req, res) => {
-    if (!req.body.member_id && !req.body.page && !req.body.ip) {
+    if (!req.body.member_id || !req.body.page || !req.body.ip) {
         response.err({ message: Message.INVALID_REQ }, res)
     } else {
         const dataShares = {
