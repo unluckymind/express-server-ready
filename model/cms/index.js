@@ -35,26 +35,25 @@ exports.id = (req, res) => {
 
 exports.save = (req, res) => {
     const saveToFolder = multer({ storage: storage }).single("image")
-    
         saveToFolder(req, res, () => {
           if (!req.file) {
             console.log('no image attached')
             response.err({ message: "no image attached, please upload an image" }, res)
             
-        } else {
-            const datas = {
-                title: req.body.title,
-                image: req.file.filename,
-                status: req.body.status,
-            }
-            connection.query("INSERT INTO banners SET created_at = now(), ?", datas, (error, payload) => {
-                if (error) {
-                    response.err({ code: error.code }, res)
-                } else {
-                    response.ok({ data: payload.affectedRows }, res)
-                }
-            })
-        }
+          } else {
+              const datas = {
+                  title: req.body.title,
+                  image: req.file.filename,
+                  status: req.body.status,
+              }
+              connection.query(db.CMS().banners.insert, datas, (error, payload) => {
+                  if (error) {
+                      response.err({ code: error.code }, res)
+                  } else {
+                      response.ok({ data: payload.affectedRows }, res)
+                  }
+              })
+          }
 
         })
 }
@@ -69,7 +68,7 @@ exports.update = (req, res) => {
       image: req.file.filename,
       status: req.body.status
     };
-    connection.query(db.CMS().banners.get, id, (err, old) => {
+    connection.query(db.CMS().banners.getById + id, (err, old) => {
       if (old[0].Image != "") {
         fs.unlink("./static/images/cms/" + old[0].image, errorRemovingFile => {
           if (errorRemovingFile) {
@@ -83,9 +82,7 @@ exports.update = (req, res) => {
     } else {
       connection.query(db.CMS(id).banners.update, datas,
         (errorQuery, payload) => {
-          errorQuery
-            ? response.err({ code: errorQuery.code }, res)
-            : response.ok({ data: payload.affectedRows }, res);
+          errorQuery ? response.err({ code: errorQuery.code }, res) : response.ok({ data: payload.affectedRows }, res);
         }
       );
     }
