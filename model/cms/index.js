@@ -17,7 +17,7 @@ const response = require("../../config/payload_config"),
   });
 
 exports.index = (req, res) => {
-  connection.query(db.CMS().body.get, (errorQuery, payload) => {
+  connection.query(db.CMS().banners.get, (errorQuery, payload) => {
     errorQuery
       ? response.err({ code: errorQuery.code }, errorQuery)
       : response.ok({ data: payload }, res);
@@ -26,7 +26,7 @@ exports.index = (req, res) => {
 
 exports.id = (req, res) => {
   const id = req.params.id;
-  connection.query(db.CMS().banners.get, id, (error, payload) => {
+  connection.query(db.CMS().banners.getById + id, (error, payload) => {
     error
       ? response.err({ code: error.code }, error)
       : response.ok({ data: payload }, res);
@@ -35,11 +35,13 @@ exports.id = (req, res) => {
 
 exports.save = (req, res) => {
     const saveToFolder = multer({ storage: storage }).single("image")
-    if (!req.file) {
-        console.log('no image attached')
-        response.err({ message: "no image attached, please upload an image" }, res)
-    } else {
+    
         saveToFolder(req, res, () => {
+          if (!req.file) {
+            console.log('no image attached')
+            response.err({ message: "no image attached, please upload an image" }, res)
+            
+        } else {
             const datas = {
                 title: req.body.title,
                 image: req.file.filename,
@@ -52,8 +54,9 @@ exports.save = (req, res) => {
                     response.ok({ data: payload.affectedRows }, res)
                 }
             })
+        }
+
         })
-    }
 }
 
 exports.update = (req, res) => {
@@ -91,7 +94,7 @@ exports.update = (req, res) => {
 
 exports.remove = (req, res) => {
   const id = req.body.id;
-  connection.query(db.CMS().banners.get, id, (err, old) => {
+  connection.query(db.CMS().banners.getById + id, (err, old) => {
     if (old[0].Image != "") {
       fs.unlink("./static/images/cms/" + old[0].image, errorRemovingFile => {
         if (errorRemovingFile) {
