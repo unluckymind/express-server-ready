@@ -1,3 +1,5 @@
+const mysql = requiret('mysql');
+
 let users = ''
 let passwords = ''
 let databases = 'sahabat_db'
