@@ -2,9 +2,10 @@
 
 const response = require("../../config/payload_config");
 const connection = require("../../config/connection");
+const db = require("../../helpers/query");
 
 exports.index = (req, res) => {
-    connection.query("SELECT * FROM log_shares", (error, payload) => {
+    connection.query(db.SAHABAT().products.get, (error, payload) => {
         error ? response.err({ code: error.code }, error) : response.ok({ data: payload }, res)
     });
 };
@@ -18,7 +19,7 @@ exports.save = (req, res) => {
             page: req.body.page,
             ip: req.body.ip,
         }
-        connection.query("INSERT INTO log_shares SET created_at = now(), ?", dataShares, (error, payload) => {
+        connection.query(db.SAHABAT().products.insert, dataShares, (error, payload) => {
             if (error) {
                 response.err({ code: error.code }, res)
             } else {
@@ -30,7 +31,7 @@ exports.save = (req, res) => {
 
 exports.member_id = (req, res) => {
     const member_id = req.params.member_id
-    connection.query("SELECT * FROM log_shares where member_id = " + member_id, (error, payload) => {
+    connection.query(db.SAHABAT().products.getByMemberId + member_id, (error, payload) => {
         error ? response.err({ code: error.code }, res) :
         response.ok({ data: payload }, res)
     });
