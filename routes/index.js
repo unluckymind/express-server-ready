@@ -1,13 +1,13 @@
 "use strict";
 
 module.exports = function (app) {
-  const model = require("../model");
-  const modelMember = require("../model/members");
-  const modelToken = require("../model/webtoken");
-  const modelProduct = require("../model/products");
-  const modelPoint = require("../model/point");
-  const modelCms = require("../model/cms")
-  const middleWareOrder = require("../middleware/order")
+  const model = require("../model"),
+        modelMember = require("../model/members"),
+        modelToken = require("../model/webtoken"),
+        modelProduct = require("../model/products"),
+        modelPoint = require("../model/point"),
+        modelCms = require("../model/cms"),
+        middleWareOrder = require("../middleware/order");
 
   app.route("/").get(model.main);
   app.route("/v1").get(model.index);
@@ -40,6 +40,7 @@ module.exports = function (app) {
   app.route("/v1/cms/banners").delete(modelCms.remove);
   app.route("/v1/cms/banners").put(modelCms.update);
 
+  // API CRON JOB
   app.route("/v1/orders/history").get(middleWareOrder.index);
 
   // API TOKEN AUTHORIZATION

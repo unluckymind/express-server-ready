@@ -38,8 +38,11 @@ SAHABAT = (id, data) => {
         insert: "INSERT INTO log_shares SET created_at = now(), ?",
         getByMemberId: "SELECT * FROM log_shares where member_id = "
     }
+    let middleware = {
+        insert: "INSERT INTO orders SET ?"
+    }
 
-    return ({ members, log_points, products })
+    return ({ members, log_points, products, middleware })
 }
 
 module.exports = {

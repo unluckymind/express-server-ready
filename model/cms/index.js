@@ -6,9 +6,10 @@ const response = require("../../config/payload_config"),
   multer = require("multer"),
   fs = require("fs"),
   path = require("path"),
+  Message = require("../../helpers/messages"),
   storage = multer.diskStorage({
     destination: path.join(__dirname + "./../../static/images/cms"),
-    filename: function(req, file, data) {
+    filename: function (req, file, data) {
       data(
         null,
         file.fieldname + "_" + Date.now() + path.extname(file.originalname)
@@ -34,60 +35,73 @@ exports.id = (req, res) => {
 };
 
 exports.save = (req, res) => {
-    const saveToFolder = multer({ storage: storage }).single("image")
-    
-        saveToFolder(req, res, () => {
-          if (!req.file) {
-            console.log('no image attached')
-            response.err({ message: "no image attached, please upload an image" }, res)
-            
-        } else {
-            const datas = {
-                title: req.body.title,
-                image: req.file.filename,
-                status: req.body.status,
-            }
-            connection.query("INSERT INTO banners SET created_at = now(), ?", datas, (error, payload) => {
-                if (error) {
-                    response.err({ code: error.code }, res)
-                } else {
-                    response.ok({ data: payload.affectedRows }, res)
-                }
-            })
-        }
-
+  const saveToFolder = multer({
+    storage: storage
+  }).single("image")
+  saveToFolder(req, res, () => {
+    const size = req.file.size
+    if (!req.file) {
+      response.err({ message: Message.UPLOAD_NO_IMAGE }, res)
+    } else {
+      const datas = {
+        title: req.body.title,
+        image: req.file.filename,
+        status: req.body.status,
+      }
+      size > 5000000 ? (
+        response.err({ message: Message.UPLOAD_LARGER }, res),
+        fs.unlink("./static/images/cms/" + req.file.filename, err => {
+          if (err) response.err({ message: Message.DELETE_IMAGE }, res);
         })
+      )
+        :
+        connection.query(db.CMS().banners.insert, datas, (error, payload) => {
+          if (error) {
+            response.err({ code: error.code }, res)
+          } else {
+            response.ok({ data: payload.affectedRows }, res)
+          }
+        })
+    }
+  })
 }
 
 exports.update = (req, res) => {
-  const saveToFolder = multer({ storage: storage }).single("image");
-
-  saveToFolder(req, res, errorSavingFile => {
+  const saveToFolder = multer({
+    storage: storage
+  }).single("image")
+  saveToFolder(req, res, () => {
+    const size = req.file.size
     const id = req.body.id;
-    const datas = {
-      title: req.body.title,
-      image: req.file.filename,
-      status: req.body.status
-    };
-    connection.query(db.CMS().banners.get, id, (err, old) => {
-      if (old[0].Image != "") {
-        fs.unlink("./static/images/cms/" + old[0].image, errorRemovingFile => {
-          if (errorRemovingFile) {
-            response.err({ code: errorRemovingFile.code }, res);
-          }
-        });
-      }
-    });
-    if (errorSavingFile) {
-      return response.err({ message: "upload to server fail..." }, res);
+    if (!req.file) {
+
+      response.err({ message: Message.UPLOAD_FAILED }, res)
+
+    } else if(size > 5000000){
+
+      response.err({ message: Message.UPLOAD_LARGER }, res),
+      fs.unlink("./static/images/cms/" + req.file.filename, err => {
+        if (err) response.err({ message: Message.DELETE_IMAGE }, res);
+      })
+     
     } else {
+
+      connection.query(db.CMS().banners.getById + id, (err, old) => {
+        if (old[0].Image != "") {
+          fs.unlink("./static/images/cms/" + old[0].image, err => {
+            if (err) response.err({ message: Message.DELETE_IMAGE }, res);
+          });
+        }
+      });
+      const datas = {
+        title: req.body.title,
+        image: req.file.filename,
+        status: req.body.status
+      };
       connection.query(db.CMS(id).banners.update, datas,
         (errorQuery, payload) => {
-          errorQuery
-            ? response.err({ code: errorQuery.code }, res)
-            : response.ok({ data: payload.affectedRows }, res);
-        }
-      );
+          errorQuery ? response.err({ code: errorQuery.code }, res) : response.ok({ data: payload.affectedRows }, res);
+      });
     }
   });
 };
@@ -96,10 +110,8 @@ exports.remove = (req, res) => {
   const id = req.body.id;
   connection.query(db.CMS().banners.getById + id, (err, old) => {
     if (old[0].Image != "") {
-      fs.unlink("./static/images/cms/" + old[0].image, errorRemovingFile => {
-        if (errorRemovingFile) {
-          response.err({ code: errorRemovingFile.code }, res);
-        }
+      fs.unlink("./static/images/cms/" + old[0].image, err => {
+        if (err) throw err;
       });
     }
   });
