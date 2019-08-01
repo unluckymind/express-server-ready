@@ -39,7 +39,7 @@ SAHABAT = (id, data) => {
         getByMemberId: "SELECT * FROM log_shares where member_id = "
     }
     let middleware = {
-        insert : "INSERT INTO orders SET ?"
+        insert: "INSERT INTO orders SET ?"
     }
 
     return ({ members, log_points, products, middleware })
